@@ -12,8 +12,8 @@ bgr_colors = {
     "orange" :(  0, 165, 255)   # Orange
 }
 
-global hsv_range
-hsv_range = {
+global hsv_ranges
+hsv_ranges = {
     'Red'   : ([156,  43,  46], [180, 255, 255]), # Red
     'blue'  : ([ 69, 120, 100], [179, 255, 255]), # Blue
     'yellow': ([ 21, 110, 117], [ 45, 255, 255]), # Yellow
@@ -32,7 +32,7 @@ def init():
             cfg = json.loads(f.read())
             
             for color, data in cfg.items():
-                hsv_range[color] = (data['lower'], data['upper'])
+                hsv_ranges[color] = (data['lower'], data['upper'])
 
     except:
         print('something went wrong in', config)
@@ -41,7 +41,7 @@ def init():
 def store():
     data = {}
 
-    for color, (low, up) in hsv_range.items():
+    for color, (low, up) in hsv_ranges.items():
         data[color] = {
             'lower':low,
             'upper':up

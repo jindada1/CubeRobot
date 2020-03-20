@@ -125,10 +125,18 @@ class HSVAdjuster(Frame):
         self.visualPanel.pack_forget()
         self.adjustPanel.pack(fill=BOTH, expand=True)
 
+        if self.toggle:
+            self.toggle((
+                list(map(lambda var: var.get(), self.lower_vars)),
+                list(map(lambda var: var.get(), self.upper_vars))
+            ))
+
     def visualize(self):
     
         self.adjustPanel.pack_forget()
         self.visualPanel.pack(fill=BOTH, expand=True)
+        if self.toggle:
+            self.toggle(None)
 
     def sliding(self, e):
 

@@ -3,7 +3,8 @@ from tkinter import ttk
 from tkinter import *
 
 from components import *
-from vision import grab_colors
+# from vision import grab_colors
+from cube_vision import hsv_range_mask
 import setting as st
 
 class App:
@@ -28,6 +29,8 @@ class App:
         # update will be automatically called every {update_delay} milliseconds
         self.update()
 
+        self.hsv_mask_range = None
+
         self.window.mainloop()
 
     def init_ui(self, window):
@@ -51,7 +54,7 @@ class App:
         RightDown = Frame(Right)
         RightDown.pack(side=BOTTOM, fill=BOTH, expand=True)
         HSVAdjuster(RightDown, toggle=self.hsv_toggle, adjusting=self.hsv_update, save=self.hsv_save) \
-            .set_hsv_range(st.hsv_range) \
+            .set_hsv_range(st.hsv_ranges) \
             .pack(fill=BOTH, expand=True)
 
         HoverButton(RightDown, text="Start", command=self.toggle_vision).pack(fill=X)
@@ -72,21 +75,33 @@ class App:
             self.status('使用摄像头中')
 
     def get_cube_color(self):
+
         ret, frame = self.camera_vision.frame()
         result, frame = grab_colors(frame)
         self.camera_vision.setPic(frame)
         if result[0]:
             self.floorplan.showResult(result[1])
 
+    def filter_hsv_color(self):
+        ret, frame = self.camera_vision.frame()
+        mask = hsv_range_mask(frame, self.hsv_mask_range)
+        self.camera_vision.setPic(mask)
+
     def hsv_save(self, item):
-        st.hsv_range[item[0]] = item[1]
+        st.hsv_ranges[item[0]] = item[1]
         st.store()
 
     def hsv_update(self, args):
-        print(args)
+        self.hsv_mask_range = args
         
-    def hsv_toggle(self):
-        print('toggle')
+    def hsv_toggle(self, hsv_range):
+        if hsv_range:
+            # filter hsv color
+            self.hsv_mask_range = hsv_range
+            self.update_func = self.filter_hsv_color
+            
+        else:
+            self.update_func = None
 
     def status(self, string):
 
