@@ -14,8 +14,8 @@ reference:
     4. get extreme points in contours
     -> https://www.pyimagesearch.com/2016/04/11/finding-extreme-points-in-contours-with-opencv/
 
-    5. hsv ranges table
-    -> 
+    5. hsv color filter
+    -> https://github.com/alkasm/colorfilters/blob/master/colorfilters/__init__.py
 
 questions:
     1. why should we convert input image from bgr to hsv ?
@@ -110,6 +110,7 @@ def sort_coordinate(grids: dict) ->list:
 
     return face
 
+# filter {color} in inmage
 def hsv_range_mask(image: np.ndarray, _range: tuple) -> np.ndarray:
     origin = image.copy()
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -142,7 +143,7 @@ def get_colors(image) -> list:
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     grids = {}
 
-    for color, (lower, upper) in hsv_ranges.items():
+    for color, (lower, upper) in setting.hsv_ranges.items():
         lower = np.array(lower, dtype=np.uint8)
         upper = np.array(upper, dtype=np.uint8)
 
@@ -171,7 +172,10 @@ def get_colors(image) -> list:
 
 # test method
 def _cube_vision_test():
-    image = cv2.imread('tests/in/Cube_0.png')
+    
+    setting.init()
+
+    image = cv2.imread('tests/in/Cube_3.png')
     face = get_colors(image)
     print(face)
     cv2.imshow('contours', image)
