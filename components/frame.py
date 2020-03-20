@@ -9,7 +9,7 @@ except:
     from button import HoverButton
 
 
-padding_y = 5
+padding_y = 2
 
 class HSVAdjuster(Frame):
 
@@ -21,16 +21,6 @@ class HSVAdjuster(Frame):
     def __init__(self, parent, adjusting=None, toggle=None, save=None):
 
         Frame.__init__(self, master=parent, pady=padding_y)
-
-        # current hsv ranges for color segmentation
-        self.hsv_range = {
-            'Red'   : ([156,  43,  46], [180, 255, 255]), # Red
-            'blue'  : ([ 69, 120, 100], [179, 255, 255]), # Blue
-            'yellow': ([ 21, 110, 117], [ 45, 255, 255]), # Yellow
-            'orange': ([  0, 110, 125], [ 17, 255, 255]), # Orange
-            'white' : ([  0,   0, 221], [180,  30, 255]), # White
-            'green' : ([ 35,  43,  46], [ 77, 255, 255]), # Green
-        }
 
         self.hsv_space = {
             "h": (0, 180),
@@ -45,18 +35,24 @@ class HSVAdjuster(Frame):
         # bind event, callback when toggle mode
         self.save = save
 
+        # store hsv ranges val
+        self.hsv_range_vars = {}
         # store Scales' val
         self.lower_vars = [IntVar() for i in range(3)]
         self.upper_vars = [IntVar() for i in range(3)]
 
-        self.initui()
-
-    def initui(self):
-        self.visualPanel = self.init_visual_panel()
-
         self.adjustPanel = self.init_adjust_panel()
 
-        self.visualize()
+    def set_hsv_range(self, hsv_range):
+        for color, (low, up) in hsv_range.items():
+            v_l = StringVar(self)
+            v_l.set(str(low))
+            v_r = StringVar(self)
+            v_r.set(str(up))
+            self.hsv_range_vars[color] = (v_l, v_r)
+        
+        self.visualPanel = self.init_visual_panel()
+        return self
 
     def init_visual_panel(self):
 
@@ -73,12 +69,13 @@ class HSVAdjuster(Frame):
         Label(col2, text="hsv-lower").pack()
         Label(col3, text="hsv-upper").pack()
 
-        for color, (l, r) in self.hsv_range.items():
+        for color, (v_l, v_r) in self.hsv_range_vars.items():
             HoverButton(col1, bg=color, text=color, cursor="hand2", params=color, click=self.adjust)\
                 .pack(fill=BOTH, expand=True, pady=padding_y)
-            Label(col2, text=str(l)).pack(fill=Y, expand=True)
-            Label(col3, text=str(l)).pack(fill=Y, expand=True)
+            Label(col2, textvariable=v_l).pack(fill=Y, expand=True)
+            Label(col3, textvariable=v_r).pack(fill=Y, expand=True)
 
+        visualPanel.pack(fill=BOTH, expand=True)
         return visualPanel
 
     def init_adjust_panel(self):
@@ -89,9 +86,9 @@ class HSVAdjuster(Frame):
         title.pack(fill=X)
         Label(title, text="正在调整颜色: ").pack(side=LEFT)
         self.adj_color = StringVar(title)
-        ttk.OptionMenu(title, self.adj_color, "-_-", *self.hsv_range.keys()).pack(side=LEFT, fill=X, expand=True)
+        ttk.OptionMenu(title, self.adj_color, "-_-", *self.hsv_range_vars.keys()).pack(side=LEFT, fill=X, expand=True)
         HoverButton(title, text="保存", command=self.save_color).pack(side=LEFT)
-        HoverButton(title, text="退出调整", command=self.visualize).pack(side=LEFT)
+        HoverButton(title, text="返回", command=self.visualize).pack(side=LEFT)
 
         content = Frame(adjustPanel)
         content.pack(fill=BOTH, expand=True)
@@ -120,10 +117,10 @@ class HSVAdjuster(Frame):
     def adjust(self, color):
         self.adj_color.set(color)
 
-        lower, upper = self.hsv_range[color]
+        lower, upper = self.hsv_range_vars[color]
         for i in range(3):
-            self.lower_vars[i].set(lower[i])
-            self.upper_vars[i].set(upper[i])
+            self.lower_vars[i].set(int(lower.get()[1:-1].split(', ')[i]))
+            self.upper_vars[i].set(int(upper.get()[1:-1].split(', ')[i]))
 
         self.visualPanel.pack_forget()
         self.adjustPanel.pack(fill=BOTH, expand=True)
@@ -137,16 +134,24 @@ class HSVAdjuster(Frame):
 
         if self.adjusting:
             self.adjusting((
-            list(map(lambda var: var.get(), self.lower_vars)),
-            list(map(lambda var: var.get(), self.upper_vars))
-        ))
+                list(map(lambda var: var.get(), self.lower_vars)),
+                list(map(lambda var: var.get(), self.upper_vars))
+            ))
         else:
             print('test', 'sliding', e)
 
     def save_color(self):
 
         if self.save:
-            self.save()
+            lower = list(map(lambda var: var.get(), self.lower_vars))
+            upper = list(map(lambda var: var.get(), self.upper_vars))
+            color = self.adj_color.get()
+
+            self.hsv_range_vars[color][0].set(str(lower))
+            self.hsv_range_vars[color][1].set(str(upper))
+
+            self.save((color, (lower, upper)))
+
         else:
             print('test', 'click save')
 

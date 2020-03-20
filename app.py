@@ -51,7 +51,9 @@ class App:
         RightDown = Frame(Right)
         RightDown.pack(side=BOTTOM, fill=BOTH, expand=True)
         HSVAdjuster(RightDown, toggle=self.hsv_toggle, adjusting=self.hsv_update, save=self.hsv_save) \
+            .set_hsv_range(st.hsv_range) \
             .pack(fill=BOTH, expand=True)
+
         HoverButton(RightDown, text="Start", command=self.toggle_vision).pack(fill=X)
 
         Bottom = Frame(window, bg='white')
@@ -76,9 +78,9 @@ class App:
         if result[0]:
             self.floorplan.showResult(result[1])
 
-    def hsv_save(self):
-        print('save')
-        print(setting.S_PADDING)
+    def hsv_save(self, item):
+        st.hsv_range[item[0]] = item[1]
+        st.store()
 
     def hsv_update(self, args):
         print(args)
@@ -104,6 +106,5 @@ class App:
 if __name__ == "__main__":
 
     st.init()
-
 
     App('test')
