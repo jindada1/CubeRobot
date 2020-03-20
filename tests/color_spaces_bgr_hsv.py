@@ -1,7 +1,7 @@
 import cv2
 import matplotlib.pyplot as plt
 
-bgr = cv2.imread('pics/Cube.png')
+bgr = cv2.imread('in/Cube.png')
 b,g,r = cv2.split(bgr)
 hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
 h,s,v = cv2.split(hsv)

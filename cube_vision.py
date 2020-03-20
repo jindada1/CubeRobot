@@ -1,89 +1,192 @@
 '''
-    reference:
-        1. Morphological processing
-        -> https://blog.csdn.net/sunny2038/article/details/9137759
-        -> https://www.jianshu.com/p/dcecaf62da71
+reference:
+    1. Morphological processing
+    -> https://blog.csdn.net/sunny2038/article/details/9137759
+    -> https://www.jianshu.com/p/dcecaf62da71
 
-        2. color spaces and color segmentation
-        -> https://www.learnopencv.com/color-spaces-in-opencv-cpp-python/
-    
-    questions:
-        1. line 24 : image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-            why should we convert input image from bgr to hsv ?
-            -> https://www.learnopencv.com/color-spaces-in-opencv-cpp-python/
-        2. line 54 : color_mask = cv2.merge([color_mask, color_mask, color_mask])
-            why merge ?
+    2. color spaces and color segmentation
+    -> https://www.learnopencv.com/color-spaces-in-opencv-cpp-python/
+    -> https://blog.csdn.net/hjxu2016/article/details/77834599
+
+    3. find contours
+    -> https://blog.csdn.net/sunny2038/article/details/12889059
+
+    4. get extreme points in contours
+    -> https://www.pyimagesearch.com/2016/04/11/finding-extreme-points-in-contours-with-opencv/
+
+    5. hsv ranges table
+    -> 
+
+questions:
+    1. why should we convert input image from bgr to hsv ?
+    -> https://www.learnopencv.com/color-spaces-in-opencv-cpp-python/
 '''
 
 import cv2
 import numpy as np
-# from imutils import contours
 
-image = cv2.imread('pics/Cube.png')
-original = image.copy()
-image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-mask = np.zeros(image.shape, dtype=np.uint8)
+# colors of rubik's cube
 
+hsv_colors = {
+    'gray'  : ([ 76,   0,  41], [179, 255,  70]), # Gray
+    'red'   : ([  0,  43,  46], [ 10, 255, 255]), # Red
+    'Red'   : ([156,  43,  46], [180, 255, 255]), # Red
+    'blue'  : ([ 69, 120, 100], [179, 255, 255]), # Blue
+    'yellow': ([ 21, 110, 117], [ 45, 255, 255]), # Yellow
+    'orange': ([  0, 110, 125], [ 17, 255, 255]), # Orange
+    'white' : ([  0,   0, 221], [180,  30, 255]), # White
+    'green' : ([ 35,  43,  46], [ 77, 255, 255]), # Green
+}
 
-colors = {
-    'gray': ([76, 0, 41], [179, 255, 70]),        # Gray
-    'blue': ([69, 120, 100], [179, 255, 255]),    # Blue
-    'yellow': ([21, 110, 117], [45, 255, 255]),   # Yellow
-    'orange': ([0, 110, 125], [17, 255, 255])     # Orange
+bgr_colors = {
+    "gray"   :(128, 128, 128),  # Gray
+    "white"  :(128, 128, 128),  # White
+    "red"    :(  0,   0, 255),  # Red
+    "Red"    :(  0,   0, 255),  # Red
+    "green"  :(128, 128, 128),  # Green
+    "blue"   :(255,   0,   0),  # Blue
+    "yellow" :(  0, 255, 255),  # Yellow
+    "orange" :(  0, 165, 255)   # Orange
 }
 
 # Color threshold to find the squares
 open_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
 close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
 
-_kris = 0
-for color, (lower, upper) in colors.items():
-    lower = np.array(lower, dtype=np.uint8)
-    upper = np.array(upper, dtype=np.uint8)
 
-    # get {color} blocks
-    color_mask = cv2.inRange(image, lower, upper)
+def straighten(contours: list) -> tuple:
 
-    # morphologyEx open: remove noise from the background
-    color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, open_kernel, iterations=1)
+    ''' 
+        find the left-top and the right-bottom in every contour(a group of points).
 
-    # morphologyEx close: remove noise from the foreground
-    color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_CLOSE, close_kernel, iterations=5)
+        x1,y1 ------
+        |          |
+        |          |
+        |          |
+        --------x2,y2
 
-    #  from (height, width)  to (height, width, 3)
-    color_mask = cv2.merge([color_mask, color_mask, color_mask])
-    
-    # 'or' every pixel of mask and color_mask, add color_mask onto mask
-    mask = cv2.bitwise_or(mask, color_mask)
+        input:
+            a list of contours
+
+        output:
+            a list of rectangles :[
+                ((x1, y1), (x2, y2)),
+                ((x1, y1), (x2, y2)),
+                ((x1, y1), (x2, y2)),
+                ...
+            ]
+    '''
+
+    rects = []
+    for cont in contours:
+
+        left = tuple(cont[:,0][cont[:,:,0].argmin()])
+        right = tuple(cont[:,0][cont[:,:,0].argmax()])
+        top = tuple(cont[:,0][cont[:,:,1].argmin()])
+        bottom = tuple(cont[:,0][cont[:,:,1].argmax()])
+
+        # add left-top and right-bottom points
+        rects.append(((left[0], top[1]), (right[0], bottom[1])))
+
+    return rects
+
+def sort_coordinate(grids: dict) ->list:
+
+    ''' 
+        sort rectangles arrording to their coordinates, 
+        so that we can know which col and row each color grid belongs to.
+
+        input:
+            grids : {
+                (x1, y1):color,
+                (x1, y1):color,
+                (x1, y1):color,
+                ...
+            }
+
+        output:
+            colors in a face, a 3x3 array:[
+                [color,color,color],
+                [color,color,color],
+                [color,color,color]
+            ]
+    '''
+
+    # sort coordinates by row
+    coordinates = sorted(list(grids.keys()), key=lambda x_y: x_y[1])
+
+    if not len(coordinates) == 9:
+        print(coordinates)
+        return None
+
+    face = [coordinates[:3], coordinates[3:6], coordinates[6:9]]
+
+    for row in face:
+
+        # sort coordinates inside a row by col
+        row.sort(key=lambda x_y: x_y[0])
+
+        # set color to a grid
+        for i in range(3):
+            row[i] = grids[row[i]]
+
+    return face
+
+def get_colors(image) -> list:
+
+    ''' 
+        Get the color of each small grid.
+
+        input:
+            image(bgr)
+
+        output:
+            colors in a face, a 3x3 array:[
+                [color,color,color],
+                [color,color,color],
+                [color,color,color]
+            ]
+    '''
+
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    grids = {}
+
+    for color, (lower, upper) in hsv_colors.items():
+        lower = np.array(lower, dtype=np.uint8)
+        upper = np.array(upper, dtype=np.uint8)
+
+        # get {color} blocks
+        color_mask = cv2.inRange(hsv, lower, upper)
+
+        # morphologyEx open: remove noise from the background
+        color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, open_kernel, iterations=1)
+
+        # morphologyEx close: remove noise from the foreground
+        color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_CLOSE, close_kernel, iterations=5)
+
+        # find contours of grids
+        cnts, _ = cv2.findContours(color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        rects = straighten(cnts)
+        
+        for rect in rects:
+            grids[rect[0]] = color
+            cv2.rectangle(image, rect[0], rect[1], bgr_colors[color], 2)
+
+    result = sort_coordinate(grids)
+
+    return result
 
 
-gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-cnts = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-# Sort all contours from top-to-bottom or bottom-to-top
-# (cnts, _) = contours.sort_contours(cnts, method="top-to-bottom")
+# test method
+def _cube_vision_test():
+    image = cv2.imread('pics/Cube_2.png')
+    face = get_colors(image)
+    print(face)
+    cv2.imshow('contours', image)
+    cv2.waitKey()
 
-# Take each row of 3 and sort from left-to-right or right-to-left
-cube_rows = []
-row = []
-for (i, c) in enumerate(cnts, 1):
-    row.append(c)
-    if i % 3 == 0:
-        # (cnts, _) = contours.sort_contours(row, method="left-to-right")
-        cube_rows.append(cnts)
-        row = []
 
-# Draw text
-number = 0
-for row in cube_rows:
-    for c in row:
-        x, y, w, h = cv2.boundingRect(c)
-        cv2.rectangle(original, (x, y), (x + w, y + h), (36, 255, 12), 2)
+if __name__ == "__main__":
 
-        cv2.putText(original, "#{}".format(number + 1), (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-        number += 1
-
-# cv2.imshow('mask', mask)
-# cv2.imwrite('mask.png', mask)
-# cv2.imshow('original', original)
-# cv2.waitKey()
+    _cube_vision_test()

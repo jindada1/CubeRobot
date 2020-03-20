@@ -1,39 +1,8 @@
-'''
-references:
-    1. how to display opencv-video-capture-window in tkinter gui
-    -> https://solarianprogrammer.com/2018/04/21/python-opencv-show-video-tkinter-window
-
-    2. draw cube floor plan
-    -> https://github.com/hkociemba/RubiksCube-TwophaseSolver/blob/master/client_gui.py
-
-'''
-import cv2
-from tkinter import *
-from PIL import Image, ImageTk
-
-from vision import grab_colors
-
-
-class HoverButton(Button):
-
-    def __init__(self, parent, hover="gainsboro", background="white", **kw):
-        Button.__init__(self, master=parent, bg=background,
-                        activebackground="gray", **kw)
-        self.hover = hover
-        self.background = background
-        self.bind("<Enter>", self.on_enter)
-        self.bind("<Leave>", self.on_leave)
-        self.config(border='0')
-
-    def on_enter(self, e):
-        self['background'] = self.hover
-
-    def on_leave(self, e):
-        self['background'] = self.background
-
 
 class CubeFloorPlan(Canvas):
-
+    '''
+        draw floor plan of a rubik's cube
+    '''
     def __init__(self, parent):
 
         self.square_width = sw = 20
@@ -89,10 +58,11 @@ class CubeFloorPlan(Canvas):
     def showResult(self, result):
 
         face = result[1][1]
-        
+
         for i in range(3):
             for j in range(3):
                 self.itemconfig(self.squares[face][i][j], fill=result[i][j])
+
 
 
 class CameraCanvas(Canvas):
@@ -166,76 +136,3 @@ class CameraCanvas(Canvas):
         self.photo = ImageTk.PhotoImage(image=Image.fromarray(rgb))
         self.create_image(0, 0, image=self.photo, anchor=NW)
 
-
-class App:
-    '''
-    main gui application of this project
-    '''
-    def __init__(self, window, title):
-
-        self.window = window
-        self.window.title(title)
-
-        # create weigets
-        self.init_ui(window)
-
-        # computer vision toggler
-        self.isScaning = False
-
-        # update will be automatically called every delay milliseconds
-        self.delay = 33
-        self.update()
-
-        self.window.mainloop()
-
-    def init_ui(self, window):
-
-        Left = Frame(window)
-        Left.pack(side=LEFT, fill=Y, padx=10, pady=10)
-        self.camera_vision = CameraCanvas(Left)
-        self.camera_vision.pack(side=TOP)
-
-        Right = Frame(window)
-        Right.pack(side=RIGHT, fill=Y, padx=10, pady=10)
-
-        RightTop = Frame(Right)
-        RightTop.pack(side=TOP)
-        self.floorplan = CubeFloorPlan(RightTop)
-        self.floorplan.pack()
-
-        RightDown = Frame(Right)
-        RightDown.pack(side=BOTTOM, fill=BOTH, expand=True)
-        self.Statuslabel = Label(RightDown, text='')
-        self.Statuslabel.pack(fill=X, expand=True)
-        HoverButton(RightDown, text="Start",
-                    command=self.start_vision).pack(fill=X)
-
-    def start_vision(self):
-        self.isScaning = not self.isScaning
-
-        if self.isScaning:
-            self.status('start computer vision')
-        else:
-            self.status('stop computer vision')
-
-    def status(self, string):
-
-        self.Statuslabel.configure(text=string)
-
-    def update(self):
-
-        if self.isScaning:
-            ret, frame = self.camera_vision.frame()
-            result, frame = grab_colors(frame)
-            self.camera_vision.setPic(frame)
-            if result[0]:
-                self.floorplan.showResult(result[1])
-        else:
-            self.camera_vision.refresh()
-
-        self.window.after(self.delay, self.update)
-
-
-if __name__ == "__main__":
-
-    App(Tk(), "Cube Robot")
