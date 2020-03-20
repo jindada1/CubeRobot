@@ -1,5 +1,15 @@
+from tkinter import ttk, Frame, Scale, Label
+from tkinter import LEFT, BOTH, HORIZONTAL, X, Y, IntVar, StringVar
 
 
+try:
+    from .button import HoverButton
+
+except:
+    from button import HoverButton
+
+
+padding_y = 5
 
 class HSVAdjuster(Frame):
 
@@ -8,9 +18,9 @@ class HSVAdjuster(Frame):
 
     '''
 
-    def __init__(self, parent, adjusting=None, toggle=None):
+    def __init__(self, parent, adjusting=None, toggle=None, save=None):
 
-        Frame.__init__(self, master=parent, pady=S_PADDING)
+        Frame.__init__(self, master=parent, pady=padding_y)
 
         # current hsv ranges for color segmentation
         self.hsv_range = {
@@ -30,9 +40,10 @@ class HSVAdjuster(Frame):
 
         # bind event, callback when slidding any Scale
         self.adjusting = adjusting
-
         # bind event, callback when toggle mode
         self.toggle = toggle
+        # bind event, callback when toggle mode
+        self.save = save
 
         # store Scales' val
         self.lower_vars = [IntVar() for i in range(3)]
@@ -64,7 +75,7 @@ class HSVAdjuster(Frame):
 
         for color, (l, r) in self.hsv_range.items():
             HoverButton(col1, bg=color, text=color, cursor="hand2", params=color, click=self.adjust)\
-                .pack(fill=BOTH, expand=True, pady=S_PADDING)
+                .pack(fill=BOTH, expand=True, pady=padding_y)
             Label(col2, text=str(l)).pack(fill=Y, expand=True)
             Label(col3, text=str(l)).pack(fill=Y, expand=True)
 
@@ -123,15 +134,27 @@ class HSVAdjuster(Frame):
         self.visualPanel.pack(fill=BOTH, expand=True)
 
     def sliding(self, e):
+
         if self.adjusting:
             self.adjusting((
             list(map(lambda var: var.get(), self.lower_vars)),
             list(map(lambda var: var.get(), self.upper_vars))
         ))
+        else:
+            print('test', 'sliding', e)
 
     def save_color(self):
 
-        self.hsv_range[self.adj_color.get()] = (
-            list(map(lambda var: var.get(), self.lower_vars)),
-            list(map(lambda var: var.get(), self.upper_vars))
-        )
+        if self.save:
+            self.save()
+        else:
+            print('test', 'click save')
+
+
+if __name__ == "__main__":
+
+    from tkinter import Tk
+
+    window = Tk()
+    HSVAdjuster(window).pack()
+    window.mainloop()

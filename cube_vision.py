@@ -24,6 +24,7 @@ questions:
 
 import cv2
 import numpy as np
+import setting
 
 # colors of rubik's cube
 
@@ -36,17 +37,6 @@ hsv_colors = {
     'orange': ([  0, 110, 125], [ 17, 255, 255]), # Orange
     'white' : ([  0,   0, 221], [180,  30, 255]), # White
     'green' : ([ 35,  43,  46], [ 77, 255, 255]), # Green
-}
-
-bgr_colors = {
-    "gray"   :(128, 128, 128),  # Gray
-    "white"  :(128, 128, 128),  # White
-    "red"    :(  0,   0, 255),  # Red
-    "Red"    :(  0,   0, 255),  # Red
-    "green"  :(128, 128, 128),  # Green
-    "blue"   :(255,   0,   0),  # Blue
-    "yellow" :(  0, 255, 255),  # Yellow
-    "orange" :(  0, 165, 255)   # Orange
 }
 
 # Color threshold to find the squares
@@ -171,7 +161,7 @@ def get_colors(image) -> list:
         
         for rect in rects:
             grids[rect[0]] = color
-            cv2.rectangle(image, rect[0], rect[1], bgr_colors[color], 2)
+            cv2.rectangle(image, rect[0], rect[1], setting.bgr_colors[color], 2)
 
     result = sort_coordinate(grids)
 
@@ -180,7 +170,7 @@ def get_colors(image) -> list:
 
 # test method
 def _cube_vision_test():
-    image = cv2.imread('pics/Cube_2.png')
+    image = cv2.imread('tests/in/Cube_2.png')
     face = get_colors(image)
     print(face)
     cv2.imshow('contours', image)

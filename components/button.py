@@ -1,4 +1,6 @@
 
+from tkinter import Button
+
 class HoverButton(Button):
 
     def __init__(self, parent, hover="gainsboro", bg="white", params=None, click=None, **kw):
