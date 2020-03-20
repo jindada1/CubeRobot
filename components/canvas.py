@@ -35,16 +35,15 @@ class CameraCanvas(Canvas):
         Canvas.__init__(self, master=parent, width=self.width, height=self.height,
                         bg='white', bd=0, highlightthickness=0, relief='ridge')
 
-        self.canopen = True
+        self.video = None
+        self.picture = None
 
-        if self.canopen:
-            self.openCamera(0)
+        # 0:nothing, 1:camera, 2:picture
+        self.Mode = 0
 
     # Release the video source when the object is destroyed
     def __del__(self):
-
-        if self.video.isOpened():
-            self.video.release()
+        self.closeCamera()
 
     def openCamera(self, camera_id=0):
 
@@ -56,40 +55,82 @@ class CameraCanvas(Canvas):
         self.video.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
         self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
 
+        self.Mode = 1
+
+    def closeCamera(self):
+
+        if self.video and self.video.isOpened():
+            self.video.release()
+            self.Mode = 0
+
     # get frame of camera
     def frame(self):
-        if self.video.isOpened():
+        if self.Mode == 1:
             ret, frame = self.video.read()
-            if ret:
-                # Return a boolean success flag and the current frame converted to BGR
-                return (ret, frame)
-            else:
-                return (ret, None)
-        else:
-            return (ret, None)
+            return frame if ret else None
 
-    # display imae on canvas
-    def refresh(self):
-        # Get a frame from the video source
-        ret, frame = self.frame()
+        elif self.Mode == 2:
+            return self.picture.copy()
 
-        if ret:
-            # must have 'self', otherwise photo will not be shown
-            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            self.photo = ImageTk.PhotoImage(image=Image.fromarray(rgb))
-            self.create_image(0, 0, image=self.photo, anchor=NW)
+    # display camera on canvas
+    def refresh(self, frame=None):
 
-    def setPic(self, frame):
+        if frame is None:
+            # Get a frame from the video source
+            frame = self.frame()
+
+        if frame is None:
+            return
 
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # must have 'self', otherwise photo will not be shown
         self.photo = ImageTk.PhotoImage(image=Image.fromarray(rgb))
-        self.create_image(0, 0, image=self.photo, anchor=NW)
+        
+        if self.Mode == 1:
+            self.create_image(0, 0, image=self.photo, anchor=NW)
+        
+        elif self.Mode == 2:
+            self.create_image(self.x, self.y, image=self.photo, anchor=NW)
 
+    def add_pic(self, filepath):
+
+        if not filepath:
+            return
+
+        self.Mode = 2
+
+        self.picture = self.validate(cv2.imread(filepath))
+        self.x = (self.width - self.picture.shape[1]) // 2
+        self.y = (self.height - self.picture.shape[0]) // 2
+
+    def validate(self, image, inter = cv2.INTER_AREA):
+        
+        (h, w) = image.shape[:2]
+
+        # if both the width and height are valid, then return the original image
+        if w < self.width and h < self.height:
+            return image
+
+        if w > self.width:
+            
+            h = self.width * (h / w)
+            w = self.width
+
+        if h > self.height:
+            w = self.height * (w / h)
+            h = self.height
+        
+        # resize the image
+        resized = cv2.resize(image, (int(w), int(h)), interpolation = inter)
+
+        # return the resized image
+        return resized
 
 class CubeFloorPlan(Canvas):
     '''
         draw floor plan of a rubik's cube
     '''
+
     def __init__(self, parent):
 
         self.square_width = sw = 20

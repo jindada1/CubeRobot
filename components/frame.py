@@ -9,7 +9,7 @@ except:
     from button import HoverButton
 
 
-padding_y = 2
+padding_y = 4
 
 class HSVAdjuster(Frame):
 
@@ -88,6 +88,7 @@ class HSVAdjuster(Frame):
         self.adj_color = StringVar(title)
         ttk.OptionMenu(title, self.adj_color, "-_-", *self.hsv_range_vars.keys()).pack(side=LEFT, fill=X, expand=True)
         HoverButton(title, text="保存", command=self.save_color).pack(side=LEFT)
+        Label(title).pack(side=LEFT)
         HoverButton(title, text="返回", command=self.visualize).pack(side=LEFT)
 
         content = Frame(adjustPanel)

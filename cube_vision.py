@@ -94,7 +94,7 @@ def sort_coordinate(grids: dict) ->list:
     coordinates = sorted(list(grids.keys()), key=lambda x_y: x_y[1])
 
     if not len(coordinates) == 9:
-        print(coordinates)
+        # print(coordinates)
         return None
 
     face = [coordinates[:3], coordinates[3:6], coordinates[6:9]]
@@ -112,7 +112,6 @@ def sort_coordinate(grids: dict) ->list:
 
 # filter {color} in inmage
 def hsv_range_mask(image: np.ndarray, _range: tuple) -> np.ndarray:
-    origin = image.copy()
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     lower = np.array(_range[0], dtype=np.uint8)
@@ -120,7 +119,7 @@ def hsv_range_mask(image: np.ndarray, _range: tuple) -> np.ndarray:
 
     mask = cv2.inRange(hsv, lower, upper)
 
-    return cv2.bitwise_and(origin, origin, mask=mask)
+    return cv2.bitwise_and(image, image, mask=mask)
 
 
 
@@ -167,7 +166,7 @@ def get_colors(image) -> list:
 
     result = sort_coordinate(grids)
 
-    return result
+    return result, image
 
 
 # test method
@@ -177,7 +176,7 @@ def _cube_vision_test():
 
     image = cv2.imread('tests/in/Cube_3.png')
     face = get_colors(image)
-    print(face)
+    # print(face)
     cv2.imshow('contours', image)
     cv2.waitKey()
 

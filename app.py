@@ -1,10 +1,10 @@
 
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from tkinter import *
 
 from components import *
 # from vision import grab_colors
-from cube_vision import hsv_range_mask
+from cube_vision import hsv_range_mask, get_colors
 import setting as st
 
 class App:
@@ -17,19 +17,31 @@ class App:
         self.window = Tk()
         self.window.title(title)
 
+        # cube scaning toggler
+        self.isScaning = False
+
+        # hsv color filter range
+        self.hsv_mask_range = None
+
+        # status text
+        self.status_var = StringVar(self.window)
+        # video button text
+        self.video_btn_var = StringVar(self.window)
+        self.video_texts = ['开启摄像头', '关闭摄像头']
+        self.video_btn_var.set(self.video_texts[0])
+        # scan button text
+        self.scan_btn_var = StringVar(self.window)
+        self.scan_texts = ['扫描魔方', '停止扫描']
+        self.scan_btn_var.set(self.scan_texts[0])
+
         # create weigets
         self.init_ui(self.window)
-
-        # computer vision toggler
-        self.isScaning = False
 
         self.update_delay = 33
         # update_func will be called in update
         self.update_func = None
         # update will be automatically called every {update_delay} milliseconds
         self.update()
-
-        self.hsv_mask_range = None
 
         self.window.mainloop()
 
@@ -40,8 +52,8 @@ class App:
 
         Left = Frame(Top)
         Left.pack(side=LEFT, fill=Y, padx=st.L_PADDING)
-        self.camera_vision = CameraCanvas(Left)
-        self.camera_vision.pack(side=TOP)
+        self.media_canvas = CameraCanvas(Left)
+        self.media_canvas.pack(side=TOP)
 
         Right = Frame(Top)
         Right.pack(side=RIGHT, fill=Y, padx=st.L_PADDING)
@@ -57,55 +69,97 @@ class App:
             .set_hsv_range(st.hsv_ranges) \
             .pack(fill=BOTH, expand=True)
 
-        HoverButton(RightDown, text="Start", command=self.toggle_vision).pack(fill=X)
+        HoverButton(RightDown, textvariable=self.video_btn_var, command=self.toggle_camera) \
+            .pack(side=LEFT, fill=X, expand=True)
+        Label(RightDown).pack(side=LEFT)
+        HoverButton(RightDown, text="打开图片", command=self.open_photo).pack(side=LEFT, fill=X, expand=True)
+        Label(RightDown).pack(side=LEFT)
+        HoverButton(RightDown, textvariable=self.scan_btn_var, command=self.toggle_scan) \
+            .pack(side=LEFT, fill=X, expand=True)
 
         Bottom = Frame(window, bg='white')
         Bottom.pack(side=BOTTOM, fill=X)
-        self.Statuslabel = Label(Bottom, text='(づ￣ 3￣)づ', bg='white')
-        self.Statuslabel.pack(side=LEFT, padx=st.L_PADDING)
+        Label(Bottom, textvariable=self.status_var, bg='white').pack(side=LEFT, padx=st.L_PADDING)
 
-    def toggle_vision(self):
+    def toggle_camera(self):
+
+        if self.media_canvas.Mode == 1:
+            self.media_canvas.closeCamera()
+            self.status_var.set('摄像头已关闭')
+            
+        else:
+            self.media_canvas.openCamera(0)
+            self.status_var.set('使用摄像头中')
+
+        self.video_btn_var.set(self.video_texts[self.media_canvas.Mode])
+
+    def toggle_scan(self):
+
+        if self.media_canvas.Mode == 0:
+            self.status_var.set('请开启摄像头或打开图片')
+            self.scan_btn_var.set(self.scan_texts[0])
+            return
+
         self.isScaning = not self.isScaning
 
         if self.isScaning:
-            self.update_func = self.get_cube_color
-            self.status('正在扫描魔方')
+            self.status_var.set('正在扫描魔方')
+
+            if self.media_canvas.Mode > 0:
+                self.update_func = self.get_cube_color
+
         else:
             self.update_func = None
-            self.status('使用摄像头中')
+            if self.media_canvas.Mode == 1:
+                self.status_var.set('使用摄像头中')
+            
+            if self.media_canvas.Mode == 2:
+                self.status_var.set('图片')
 
+        self.scan_btn_var.set(self.scan_texts[self.isScaning])
+
+
+    def open_photo(self):
+        
+        picpath = filedialog.askopenfilename()
+
+        self.media_canvas.add_pic(picpath)
+    
     def get_cube_color(self):
 
-        ret, frame = self.camera_vision.frame()
-        result, frame = grab_colors(frame)
-        self.camera_vision.setPic(frame)
-        if result[0]:
-            self.floorplan.showResult(result[1])
+        frame = self.media_canvas.frame()
+        result, frame = get_colors(frame)
+        self.media_canvas.refresh(frame)
+
+        if result:
+            self.floorplan.showResult(result)
 
     def filter_hsv_color(self):
-        ret, frame = self.camera_vision.frame()
+
+        frame = self.media_canvas.frame()
         mask = hsv_range_mask(frame, self.hsv_mask_range)
-        self.camera_vision.setPic(mask)
+        self.media_canvas.refresh(mask)
 
     def hsv_save(self, item):
+
         st.hsv_ranges[item[0]] = item[1]
         st.store()
 
     def hsv_update(self, args):
+
         self.hsv_mask_range = args
         
     def hsv_toggle(self, hsv_range):
+
         if hsv_range:
             # filter hsv color
             self.hsv_mask_range = hsv_range
-            self.update_func = self.filter_hsv_color
-            
+
+            if self.media_canvas.Mode > 0:
+                self.update_func = self.filter_hsv_color
+
         else:
             self.update_func = None
-
-    def status(self, string):
-
-        self.Statuslabel.configure(text=string)
 
     def update(self):
 
@@ -113,7 +167,7 @@ class App:
             self.update_func()
 
         else:
-            self.camera_vision.refresh()
+            self.media_canvas.refresh()
 
         self.window.after(self.update_delay, self.update)
 
