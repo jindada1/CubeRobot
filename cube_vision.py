@@ -6,7 +6,7 @@ reference:
 
     2. color spaces and color segmentation
     -> https://www.learnopencv.com/color-spaces-in-opencv-cpp-python/
-    -> https://blog.csdn.net/hjxu2016/article/details/77834599
+    -> https://blog.csdn.net/Taily_Duan/article/details/51506776
 
     3. find contours
     -> https://blog.csdn.net/sunny2038/article/details/12889059
@@ -109,10 +109,11 @@ def sort_coordinate(grids: dict) -> list:
 
     return face
 
-# filter {color} in inmage
-
 
 def hsv_range_mask(image: np.ndarray, _range: tuple) -> np.ndarray:
+    '''
+        filter {color} in inmage
+    '''
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     lower = np.array(_range[0], dtype=np.uint8)
@@ -179,19 +180,21 @@ def count_sample_points(new_data=None):
         ]
     
 
-def get_color(image, points):
+def get_color(hsv_value):
 
-    for point in points:
-        cv2.circle(image, point, 2, setting.bgr_colors['blue'] , 2) 
+    print(hsv_value)
 
 def manual_find(image):
     '''
         we directly specified the sample points for color recognition
     '''
     grid_samples = sample_coordinates()
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     
     for points in grid_samples:
-        get_color(image, points)
+        for point in points:
+            color = get_color(hsv[point[1], point[0]])
+            cv2.circle(image, point, 2, setting.bgr_colors['blue'] , 2)
 
     return None, image
 
@@ -234,8 +237,8 @@ def auto_find(image):
 # test method
 def _cube_vision_test():
 
-    setting.init()
-    image = cv2.imread('tests/in/Cube_3.png')
+    # setting.init()
+    image = cv2.imread('tests/in/Cube_0.png')
     face = scan_cube(image, 'm')
     
     cv2.imshow('contours', image)
