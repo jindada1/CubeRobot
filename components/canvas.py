@@ -37,6 +37,7 @@ class CameraCanvas(Canvas):
 
         self.video = None
         self.picture = None
+        self.white = [255, 255, 255]
 
         # 0:nothing, 1:camera, 2:picture
         self.Mode = 0
@@ -86,45 +87,46 @@ class CameraCanvas(Canvas):
         # must have 'self', otherwise photo will not be shown
         self.photo = ImageTk.PhotoImage(image=Image.fromarray(rgb))
         
-        if self.Mode == 1:
-            self.create_image(0, 0, image=self.photo, anchor=NW)
-        
-        elif self.Mode == 2:
-            self.create_image(self.x, self.y, image=self.photo, anchor=NW)
+        self.create_image(0, 0, image=self.photo, anchor=NW)
 
     def add_pic(self, filepath):
 
         if not filepath:
             return
 
+        if self.Mode == 1:
+            self.closeCamera()
+            
         self.Mode = 2
 
         self.picture = self.validate(cv2.imread(filepath))
-        self.x = (self.width - self.picture.shape[1]) // 2
-        self.y = (self.height - self.picture.shape[0]) // 2
 
-    def validate(self, image, inter = cv2.INTER_AREA):
+    def validate(self, image):
         
         (h, w) = image.shape[:2]
 
-        # if both the width and height are valid, then return the original image
-        if w < self.width and h < self.height:
-            return image
-
         if w > self.width:
             
-            h = self.width * (h / w)
+            h = int(self.width * (h / w))
             w = self.width
 
         if h > self.height:
-            w = self.height * (w / h)
+            w = int(self.height * (w / h))
             h = self.height
         
         # resize the image
-        resized = cv2.resize(image, (int(w), int(h)), interpolation = inter)
+        resized = cv2.resize(image, (w, h), interpolation = cv2.INTER_AREA)
 
-        # return the resized image
-        return resized
+        top = (self.height - h) // 2
+        bottom = self.height - h - top
+
+        left = (self.width - w) // 2
+        right = self.width - w - left
+
+        # padding image
+        image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=self.white)
+        
+        return image
 
 class CubeFloorPlan(Canvas):
     '''

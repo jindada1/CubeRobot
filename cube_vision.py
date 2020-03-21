@@ -30,10 +30,9 @@ import setting
 # Color threshold to find the squares
 open_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
 close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
-
+sample_points = [[] for i in range(9)]
 
 def straighten(contours: list) -> tuple:
-
     ''' 
         find the left-top and the right-bottom in every contour(a group of points).
 
@@ -58,18 +57,18 @@ def straighten(contours: list) -> tuple:
     rects = []
     for cont in contours:
 
-        left = tuple(cont[:,0][cont[:,:,0].argmin()])
-        right = tuple(cont[:,0][cont[:,:,0].argmax()])
-        top = tuple(cont[:,0][cont[:,:,1].argmin()])
-        bottom = tuple(cont[:,0][cont[:,:,1].argmax()])
+        left = tuple(cont[:, 0][cont[:, :, 0].argmin()])
+        right = tuple(cont[:, 0][cont[:, :, 0].argmax()])
+        top = tuple(cont[:, 0][cont[:, :, 1].argmin()])
+        bottom = tuple(cont[:, 0][cont[:, :, 1].argmax()])
 
         # add left-top and right-bottom points
         rects.append(((left[0], top[1]), (right[0], bottom[1])))
 
     return rects
 
-def sort_coordinate(grids: dict) ->list:
 
+def sort_coordinate(grids: dict) -> list:
     ''' 
         sort rectangles arrording to their coordinates, 
         so that we can know which col and row each color grid belongs to.
@@ -106,11 +105,13 @@ def sort_coordinate(grids: dict) ->list:
 
         # set color to a grid
         for i in range(3):
-            row[i] = grids[row[i]]
+            row[i] = grids[row[i]].lower()
 
     return face
 
 # filter {color} in inmage
+
+
 def hsv_range_mask(image: np.ndarray, _range: tuple) -> np.ndarray:
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -122,9 +123,7 @@ def hsv_range_mask(image: np.ndarray, _range: tuple) -> np.ndarray:
     return cv2.bitwise_and(image, image, mask=mask)
 
 
-
-def get_colors(image) -> list:
-
+def scan_cube(image, mode) -> list:
     ''' 
         Get the color of each small grid.
 
@@ -136,9 +135,72 @@ def get_colors(image) -> list:
                 [color,color,color],
                 [color,color,color],
                 [color,color,color]
-            ]
+            ],
+            image: modified image
     '''
+    if mode == 'm':
+        return manual_find(image)
 
+    if mode == 'a':
+        return auto_find(image)
+
+def sample_coordinates():
+
+    if not sample_points[0]:
+        count_sample_points()
+        
+    return sample_points
+
+
+def count_sample_points(new_data=None):
+
+    if new_data:
+        setting.sample = new_data
+
+    x, y, w = setting.sample
+    
+    # 3 x 3 grids per face
+    for i in range(9):
+        col, row = i % 3, i // 3
+        b_x = col*w + x
+        b_y = row*w + y
+        '''
+            five-point sampling
+            x   x
+              x
+            x   x
+        '''
+        sample_points[i] = [
+            (b_x +   w//4, b_y +   w//4),
+            (b_x + 3*w//4, b_y +   w//4),
+            (b_x +   w//2, b_y +   w//2),
+            (b_x +   w//4, b_y + 3*w//4),
+            (b_x + 3*w//4, b_y + 3*w//4)
+        ]
+    
+
+def get_color(image, points):
+
+    for point in points:
+        cv2.circle(image, point, 2, setting.bgr_colors['blue'] , 2) 
+
+def manual_find(image):
+    '''
+        we directly specified the sample points for color recognition
+    '''
+    grid_samples = sample_coordinates()
+    
+    for points in grid_samples:
+        get_color(image, points)
+
+    return None, image
+
+
+def auto_find(image):
+    '''
+        We don't know the position of rubik's cube in image,
+        so we try to filter every color and morphologyEx
+    '''
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     grids = {}
 
@@ -159,7 +221,7 @@ def get_colors(image) -> list:
         cnts, _ = cv2.findContours(color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         rects = straighten(cnts)
-        
+
         for rect in rects:
             grids[rect[0]] = color
             cv2.rectangle(image, rect[0], rect[1], setting.bgr_colors[color], 2)
@@ -171,12 +233,11 @@ def get_colors(image) -> list:
 
 # test method
 def _cube_vision_test():
-    
-    setting.init()
 
+    setting.init()
     image = cv2.imread('tests/in/Cube_3.png')
-    face = get_colors(image)
-    # print(face)
+    face = scan_cube(image, 'm')
+    
     cv2.imshow('contours', image)
     cv2.waitKey()
 

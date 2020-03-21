@@ -165,10 +165,83 @@ class HSVAdjuster(Frame):
             print('test', 'click save')
 
 
+class SampleAdjuster(Frame):
+
+    '''
+        adjust hsv range of a color, and store in json file 
+
+    '''
+
+    def __init__(self, parent, adjusting=None, toggle=None, save=None):
+
+        Frame.__init__(self, master=parent, pady=padding_y)
+
+        # bind event, callback when slidding any Scale
+        self.adjusting = adjusting
+        
+        # bind event, callback when toggle mode
+        self.save = save
+
+        self.vars = [IntVar() for i in range(3)]
+        
+        self.properties = {
+            "x": 640,
+            "y": 480,
+            "width": 160
+        }
+        
+        self.init_adjust_panel()
+
+    def init_adjust_panel(self):
+
+        HoverButton(self, text="保存", command=self.save_sample).pack(fill=X)
+
+        panel = Frame(self)
+
+        col1 = Frame(panel)
+        col1.pack(side=LEFT, fill=Y)
+        col2 = Frame(panel)
+        col2.pack(side=LEFT, fill=BOTH, expand=True)
+
+        for i, (prop, _max) in enumerate(self.properties.items()):
+
+            Label(col1, text=prop).pack(fill=Y, expand=True)
+            Scale(col2, from_=0, to=_max, variable=self.vars[i], tickinterval=_max, command=self.sliding, \
+                orient=HORIZONTAL).pack(fill=BOTH, expand=True)
+        
+        panel.pack(fill=BOTH, expand=True)
+
+
+    def sliding(self, e):
+
+        if self.adjusting:
+            self.adjusting(
+                list(map(lambda var: var.get(), self.vars))
+            )
+        else:
+            print('test', 'sliding', e)
+
+    def save_sample(self):
+        
+        if self.save:
+            self.save()
+
+        else:
+            print('test', 'click save')
+
+    def set_sample(self, sample):
+        
+        for i, val in enumerate(sample):
+
+            self.vars[i].set(val)
+            
+
+
 if __name__ == "__main__":
 
     from tkinter import Tk
 
     window = Tk()
-    HSVAdjuster(window).pack()
+    # HSVAdjuster(window).pack()
+    SampleAdjuster(window).pack(fill=BOTH, expand=True)
     window.mainloop()

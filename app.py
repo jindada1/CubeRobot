@@ -4,7 +4,7 @@ from tkinter import *
 
 from components import *
 # from vision import grab_colors
-from cube_vision import hsv_range_mask, get_colors
+from cube_vision import hsv_range_mask, scan_cube, count_sample_points
 import setting as st
 
 class App:
@@ -18,7 +18,11 @@ class App:
         self.window.title(title)
 
         # cube scaning toggler
-        self.isScaning = False
+        self.scaning = False
+        self.scan_modes = [('自动定位魔方', 'a'), ('手动定位', 'm')]
+        self.scan_mode = StringVar()
+        self.last_scan_mode = 'm'
+        self.scan_mode.set(self.last_scan_mode)
 
         # hsv color filter range
         self.hsv_mask_range = None
@@ -53,7 +57,12 @@ class App:
         Left = Frame(Top)
         Left.pack(side=LEFT, fill=Y, padx=st.L_PADDING)
         self.media_canvas = CameraCanvas(Left)
-        self.media_canvas.pack(side=TOP)
+        self.media_canvas.pack()
+        mediaMode = Frame(Left)
+        mediaMode.pack(fill=X)
+        for text, mode in self.scan_modes:
+            Radiobutton(mediaMode, text=text, variable=self.scan_mode, value=mode, command=self.scan_mode_change)\
+                .pack(side=LEFT)
 
         Right = Frame(Top)
         Right.pack(side=RIGHT, fill=Y, padx=st.L_PADDING)
@@ -65,10 +74,8 @@ class App:
 
         RightDown = Frame(Right)
         RightDown.pack(side=BOTTOM, fill=BOTH, expand=True)
-        HSVAdjuster(RightDown, toggle=self.hsv_toggle, adjusting=self.hsv_update, save=self.hsv_save) \
-            .set_hsv_range(st.hsv_ranges) \
-            .pack(fill=BOTH, expand=True)
-
+        Adjuster = Frame(RightDown)
+        Adjuster.pack(fill=BOTH, expand=True)
         HoverButton(RightDown, textvariable=self.video_btn_var, command=self.toggle_camera) \
             .pack(side=LEFT, fill=X, expand=True)
         Label(RightDown).pack(side=LEFT)
@@ -76,10 +83,40 @@ class App:
         Label(RightDown).pack(side=LEFT)
         HoverButton(RightDown, textvariable=self.scan_btn_var, command=self.toggle_scan) \
             .pack(side=LEFT, fill=X, expand=True)
+        
+        self.HSVAdjuster = HSVAdjuster(Adjuster, toggle=self.hsv_toggle, adjusting=self.hsv_update, save=self.hsv_save)
+        self.HSVAdjuster.set_hsv_range(st.hsv_ranges)
+        self.SampleAdjuster = SampleAdjuster(Adjuster, adjusting=self.resample, save=self.save_sample)
+        self.SampleAdjuster.set_sample(st.sample)
+        self.SampleAdjuster.pack(fill=BOTH, expand=True)
 
         Bottom = Frame(window, bg='white')
         Bottom.pack(side=BOTTOM, fill=X)
         Label(Bottom, textvariable=self.status_var, bg='white').pack(side=LEFT, padx=st.L_PADDING)
+
+    def scan_mode_change(self):
+
+        mode = self.scan_mode.get()
+        if self.last_scan_mode == mode:
+            return
+
+        self.last_scan_mode = mode
+
+        if mode == 'm':
+            self.HSVAdjuster.pack_forget()
+            self.SampleAdjuster.pack(fill=BOTH, expand=True)
+
+        if mode == 'a':
+            self.SampleAdjuster.pack_forget()
+            self.HSVAdjuster.pack(fill=BOTH, expand=True)
+
+    def resample(self, data):
+        
+        count_sample_points(data)
+
+    def save_sample(self):
+
+        st.store()
 
     def toggle_camera(self):
 
@@ -100,9 +137,9 @@ class App:
             self.scan_btn_var.set(self.scan_texts[0])
             return
 
-        self.isScaning = not self.isScaning
+        self.scaning = not self.scaning
 
-        if self.isScaning:
+        if self.scaning:
             self.status_var.set('正在扫描魔方')
 
             if self.media_canvas.Mode > 0:
@@ -116,8 +153,7 @@ class App:
             if self.media_canvas.Mode == 2:
                 self.status_var.set('图片')
 
-        self.scan_btn_var.set(self.scan_texts[self.isScaning])
-
+        self.scan_btn_var.set(self.scan_texts[self.scaning])
 
     def open_photo(self):
         
@@ -126,9 +162,10 @@ class App:
         self.media_canvas.add_pic(picpath)
     
     def get_cube_color(self):
-
+        scan_mode = self.scan_mode.get()
+        
         frame = self.media_canvas.frame()
-        result, frame = get_colors(frame)
+        result, frame = scan_cube(frame, scan_mode)
         self.media_canvas.refresh(frame)
 
         if result:
