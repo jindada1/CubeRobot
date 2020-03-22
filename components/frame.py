@@ -1,9 +1,9 @@
-from tkinter import ttk, Frame, Scale, Label
+from tkinter import ttk, Frame, Scale, Label, Entry, Canvas
 from tkinter import LEFT, BOTH, HORIZONTAL, X, Y, IntVar, StringVar
 
 
 try:
-    from .button import HoverButton
+    from . import HoverButton
 
 except:
     from button import HoverButton
@@ -178,63 +178,145 @@ class SampleAdjuster(Frame):
 
         # bind event, callback when slidding any Scale
         self.adjusting = adjusting
-        
         # bind event, callback when toggle mode
         self.save = save
 
         self.vars = [IntVar() for i in range(3)]
         
-        self.properties = {
-            "x": 640,
-            "y": 480,
-            "width": 160
-        }
-        
-        self.init_adjust_panel()
+        self.projection_rate = 1    # float: projection rate, big/small
+        self.sample_area = None     # int: rectangle created by canvas, represents sampling area
+        self.smallscreen = None     # tuple: (w, h, y): info of smallscreen
+        self.bigscreen = None       # tuple: (w, h): size of bigsreen, passed by caller, 
+        self.sample = None          # list: [x, y, w]: sample in smallscreen
 
-    def init_adjust_panel(self):
+        self.scale_step = StringVar()
+        self.scale_step.set('10')
 
         HoverButton(self, text="保存", command=self.save_sample).pack(fill=X)
 
+        self.init_panel()
+
+        self.bind_events()
+
+    def init_panel(self):
+
         panel = Frame(self)
-
-        col1 = Frame(panel)
-        col1.pack(side=LEFT, fill=Y)
-        col2 = Frame(panel)
-        col2.pack(side=LEFT, fill=BOTH, expand=True)
-
-        for i, (prop, _max) in enumerate(self.properties.items()):
-
-            Label(col1, text=prop).pack(fill=Y, expand=True)
-            Scale(col2, from_=0, to=_max, variable=self.vars[i], tickinterval=_max, command=self.sliding, \
-                orient=HORIZONTAL).pack(fill=BOTH, expand=True)
-        
         panel.pack(fill=BOTH, expand=True)
+        
+        self.canvas = Canvas(panel, bg='white', width=40, height=30, bd=0, highlightthickness=0)
+        self.canvas.pack(fill=BOTH, expand=True, pady=4)
 
+        control = Frame(self)
+        control.pack(fill=X)
 
-    def sliding(self, e):
+        HoverButton(control, text="-", params=-1, click=self.change_scale).pack(side=LEFT, fill=X, expand=True)
+        vcmd = (control.register(lambda c: c.isdigit()), '%P')
+        Entry(control, textvariable=self.scale_step, validate='key', vcmd=vcmd)\
+            .pack(side=LEFT, fill=Y, padx=6)
+        HoverButton(control, text="+", params=1, click=self.change_scale).pack(side=LEFT, fill=X, expand=True)
+
+    def bind_events(self):
+
+        self.canvas.bind("<Enter>", self.init_projection)
+
+    def init_projection(self, e=None):
+
+        if not self.smallscreen:
+            # aspect rate of big screen
+            h_aspect_w = self.bigscreen[1]/self.bigscreen[0]
+
+            # get safe area
+            w = self.canvas.winfo_width()
+            h = int(w * h_aspect_w)
+            y = (self.canvas.winfo_height() - h) // 2
+            self.smallscreen = (w, h, y)
+
+            # count projection rate: small to big
+            self.projection_rate = r = self.bigscreen[0] / w
+
+            # project sample from bigscreen to small screen
+            self.sample = list(map(lambda v: int(v/r), self.sample))
+            self.draw_sample_area()
+
+        w, h, y = self.smallscreen
+        
+        self.canvas.create_line(0,   y-3, w,   y-3, fill="palegreen", width=3)
+        self.canvas.create_line(0, h+y+3, w, h+y+3, fill="palegreen", width=3)
+
+    def draw_sample_area(self):
+        x, y, w = self.sample
+        y += self.smallscreen[2]
+        w = 3*w
+
+        self.sample_area = self.canvas.create_rectangle(x, y, x+w, y+w, \
+            fill='whitesmoke', outline="skyblue", activewidth=3)
+
+        self.canvas.tag_bind(self.sample_area, '<Button-1>', self.dragstart)
+        self.canvas.tag_bind(self.sample_area, '<B1-Motion>', self.draging)
+
+    def dragstart(self, event):
+        self.x = event.x
+        self.y = event.y
+        self.s_x = self.sample[0]
+        self.s_y = self.sample[1]
+
+    def draging(self,event):
+        
+        self.sample[0] = event.x - self.x + self.s_x
+        self.sample[1] = event.y - self.y + self.s_y
+
+        self.refresh()
+
+    def refresh(self):
+
+        self.verify_sample()
+
+        x, y, w = self.sample
+        y += self.smallscreen[2]
+        w = 3*w
+
+        self.canvas.coords(self.sample_area, x, y, x+w, y+w)
 
         if self.adjusting:
-            self.adjusting(
-                list(map(lambda var: var.get(), self.vars))
-            )
+            self.adjusting(list(map(lambda v: int(self.projection_rate*v), self.sample)))
+
         else:
             print('test', 'sliding', e)
 
+    def verify_sample(self):
+
+        W, H, _ = self.smallscreen
+        w = self.sample[2]*3
+
+        self.sample[0] = max(self.sample[0], 0)
+        self.sample[1] = max(self.sample[1], 0)
+
+        if self.sample[0] + w > W:
+            self.sample[0] = W - w
+
+        if self.sample[1] + w > H:
+            self.sample[1] = H - w
+
+    def set_data(self, sample, bigscreen):
+
+        self.sample = sample.copy()
+
+        self.bigscreen = bigscreen
+
+    def change_scale(self, arg):
+
+        self.sample[2] += int(self.scale_step.get()) * arg
+
+        self.refresh()
+
     def save_sample(self):
-        
+
         if self.save:
             self.save()
 
         else:
             print('test', 'click save')
 
-    def set_sample(self, sample):
-        
-        for i, val in enumerate(sample):
-
-            self.vars[i].set(val)
-            
 
 
 if __name__ == "__main__":

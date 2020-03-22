@@ -40,7 +40,9 @@ class App:
 
         # create weigets
         self.init_ui(self.window)
-
+        # set data to widgets
+        self.init_data()
+        
         self.update_delay = 33
         # update_func will be called in update
         self.update_func = None
@@ -84,15 +86,20 @@ class App:
         HoverButton(RightDown, textvariable=self.scan_btn_var, command=self.toggle_scan) \
             .pack(side=LEFT, fill=X, expand=True)
         
-        self.HSVAdjuster = HSVAdjuster(Adjuster, toggle=self.hsv_toggle, adjusting=self.hsv_update, save=self.hsv_save)
-        self.HSVAdjuster.set_hsv_range(st.hsv_ranges)
-        self.SampleAdjuster = SampleAdjuster(Adjuster, adjusting=self.resample, save=self.save_sample)
-        self.SampleAdjuster.set_sample(st.sample)
-        self.SampleAdjuster.pack(fill=BOTH, expand=True)
+        self.hsv_adjuster = HSVAdjuster(Adjuster, toggle=self.hsv_toggle, adjusting=self.hsv_update, save=self.hsv_save)
+        self.sample_adjuster = SampleAdjuster(Adjuster, adjusting=self.resample, save=self.save_sample)
+        self.sample_adjuster.pack(fill=BOTH, expand=True)
 
         Bottom = Frame(window, bg='white')
         Bottom.pack(side=BOTTOM, fill=X)
         Label(Bottom, textvariable=self.status_var, bg='white').pack(side=LEFT, padx=st.L_PADDING)
+
+    def init_data(self):
+        
+        self.hsv_adjuster.set_hsv_range(st.hsv_ranges)
+
+        width_height = (self.media_canvas.width, self.media_canvas.height)
+        self.sample_adjuster.set_data(st.sample, width_height)
 
     def scan_mode_change(self):
 
@@ -103,12 +110,12 @@ class App:
         self.last_scan_mode = mode
 
         if mode == 'm':
-            self.HSVAdjuster.pack_forget()
-            self.SampleAdjuster.pack(fill=BOTH, expand=True)
+            self.hsv_adjuster.pack_forget()
+            self.sample_adjuster.pack(fill=BOTH, expand=True)
 
         if mode == 'a':
-            self.SampleAdjuster.pack_forget()
-            self.HSVAdjuster.pack(fill=BOTH, expand=True)
+            self.sample_adjuster.pack_forget()
+            self.hsv_adjuster.pack(fill=BOTH, expand=True)
 
     def resample(self, data):
         
