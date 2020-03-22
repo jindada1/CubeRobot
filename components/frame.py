@@ -192,8 +192,6 @@ class SampleAdjuster(Frame):
         self.scale_step = StringVar()
         self.scale_step.set('10')
 
-        HoverButton(self, text="保存", command=self.save_sample).pack(fill=X)
-
         self.init_panel()
 
         self.bind_events()
@@ -209,11 +207,15 @@ class SampleAdjuster(Frame):
         control = Frame(self)
         control.pack(fill=X)
 
-        HoverButton(control, text="-", params=-1, click=self.change_scale).pack(side=LEFT, fill=X, expand=True)
+        HoverButton(control, text="缩小", params=-1, click=self.change_scale).pack(side=LEFT, fill=X, expand=True)
+        Label(control, text='缩放速度').pack(side=LEFT)
         vcmd = (control.register(lambda c: c.isdigit()), '%P')
-        Entry(control, textvariable=self.scale_step, validate='key', vcmd=vcmd)\
-            .pack(side=LEFT, fill=Y, padx=6)
-        HoverButton(control, text="+", params=1, click=self.change_scale).pack(side=LEFT, fill=X, expand=True)
+        Entry(control, textvariable=self.scale_step, validate='key', vcmd=vcmd, width=5)\
+            .pack(side=LEFT, fill=Y)
+        HoverButton(control, text="放大", params=1, click=self.change_scale) \
+            .pack(side=LEFT, fill=X, expand=True, padx=6)
+        HoverButton(control, text="保存", command=self.save_sample).pack(side=LEFT, fill=X)
+
 
     def bind_events(self):
 

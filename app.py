@@ -132,7 +132,7 @@ class App:
             self.status_var.set('摄像头已关闭')
             
         else:
-            self.media_canvas.openCamera(0)
+            self.media_canvas.openCamera(1)
             self.status_var.set('使用摄像头中')
 
         self.video_btn_var.set(self.video_texts[self.media_canvas.Mode])
@@ -176,6 +176,7 @@ class App:
         self.media_canvas.refresh(frame)
 
         if result:
+            print(result)
             self.floorplan.showResult(result)
 
     def filter_hsv_color(self):

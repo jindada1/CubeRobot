@@ -33,7 +33,7 @@ class CameraCanvas(Canvas):
         self.height = 480
 
         Canvas.__init__(self, master=parent, width=self.width, height=self.height,
-                        bg='white', bd=0, highlightthickness=0, relief='ridge')
+                        bg='white', bd=0, highlightthickness=0)
 
         self.video = None
         self.picture = None
@@ -51,7 +51,11 @@ class CameraCanvas(Canvas):
         # Open the camera, default 0 is the first camera device on you computer
         self.video = cv2.VideoCapture(camera_id, cv2.CAP_DSHOW)
         if not self.video.isOpened():
-            raise ValueError("Unable to open video source", camera_id)
+            if camera_id > 0:
+                self.openCamera(camera_id-1)
+                return
+            else:
+                raise ValueError("Unable to open video source", camera_id)
 
         self.video.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
         self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
@@ -128,6 +132,7 @@ class CameraCanvas(Canvas):
         
         return image
 
+
 class CubeFloorPlan(Canvas):
     '''
         draw floor plan of a rubik's cube
@@ -140,7 +145,7 @@ class CubeFloorPlan(Canvas):
         width = 12 * sw + pd
         height = 9 * sw + pd
         Canvas.__init__(self, master=parent, width=width, height=height,
-                        bg='white', bd=0, highlightthickness=0, relief='ridge')
+                        bg='white', bd=0, highlightthickness=0)
 
         self.facelet_id = [[[0 for col in range(3)]
                             for row in range(3)] for face in range(6)]
@@ -173,7 +178,7 @@ class CubeFloorPlan(Canvas):
             x, y, flag = anchors[face]
             for row in range(3):
                 for col in range(3):
-                    self.squares[face][row][col] = self.drawSquare(x + row * w, y + col * w)
+                    self.squares[face][row][col] = self.drawSquare(x + col * w, y + row * w)
 
             # set center color of every face
             self.itemconfig(self.squares[face][1][1], fill=face)
@@ -188,10 +193,12 @@ class CubeFloorPlan(Canvas):
     def showResult(self, result):
 
         face = result[1][1]
-
-        for i in range(3):
-            for j in range(3):
-                self.itemconfig(self.squares[face][i][j], fill=result[i][j])
+        try:
+            for i in range(3):
+                for j in range(3):
+                    self.itemconfig(self.squares[face][i][j], fill=result[i][j])
+        except:
+            pass
 
 
 if __name__ == "__main__":
@@ -200,5 +207,7 @@ if __name__ == "__main__":
 
     window = Tk()
     CubeFloorPlan(window).pack()
-    CameraCanvas(window).pack()
+    # camera = CameraCanvas(window)
+    # camera.pack()
+    # camera.openCamera(2)
     window.mainloop()

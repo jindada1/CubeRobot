@@ -182,7 +182,21 @@ def count_sample_points(new_data=None):
 
 def get_color(hsv_value):
 
+    h, s, v = hsv_value
     print(hsv_value)
+    if s < setting.s_divide:
+        # black, gray, white
+        for color, value in setting.v_ranges:
+            if v <= value:
+                return color
+
+    else:
+        # red, orange, yellow, green, blue
+        for color, value in setting.h_ranges:
+            if h <= value:
+                return color
+    
+    return 'error'
 
 def manual_find(image):
     '''
@@ -190,13 +204,19 @@ def manual_find(image):
     '''
     grid_samples = sample_coordinates()
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    
+    face = []
+
     for points in grid_samples:
+        grid_color_candidates = []
         for point in points:
             color = get_color(hsv[point[1], point[0]])
-            cv2.circle(image, point, 2, setting.bgr_colors['blue'] , 2)
+            cv2.circle(image, point, 2, setting.bgr_colors[color] , 2)
+            grid_color_candidates.append(color)
+        
+        grid_color = max(set(grid_color_candidates), key = grid_color_candidates.count)
+        face.append(grid_color)
 
-    return None, image
+    return [face[:3], face[3:6], face[6:9]], image
 
 
 def auto_find(image):
@@ -238,12 +258,11 @@ def auto_find(image):
 def _cube_vision_test():
 
     # setting.init()
-    image = cv2.imread('tests/in/Cube_0.png')
-    face = scan_cube(image, 'm')
-    
+    image = cv2.imread('tests/in/Cube_1.png')
+    colors, face = scan_cube(image, 'm')
+    print(colors)
     cv2.imshow('contours', image)
     cv2.waitKey()
-
 
 if __name__ == "__main__":
 
