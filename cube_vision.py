@@ -183,7 +183,7 @@ def count_sample_points(new_data=None):
 def get_color(hsv_value):
 
     h, s, v = hsv_value
-    print(hsv_value)
+    
     if s < setting.s_divide:
         # black, gray, white
         for color, value in setting.v_ranges:
@@ -260,7 +260,7 @@ def _cube_vision_test():
     # setting.init()
     image = cv2.imread('tests/in/Cube_1.png')
     colors, face = scan_cube(image, 'm')
-    print(colors)
+    
     cv2.imshow('contours', image)
     cv2.waitKey()
 

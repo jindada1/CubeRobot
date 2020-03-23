@@ -1,6 +1,5 @@
 from tkinter import ttk, Frame, Scale, Label, Entry, Canvas
-from tkinter import LEFT, BOTH, HORIZONTAL, X, Y, IntVar, StringVar
-
+from tkinter import LEFT, RIGHT, BOTH, X, Y, IntVar, StringVar
 
 try:
     from . import HoverButton
@@ -45,10 +44,8 @@ class HSVAdjuster(Frame):
 
     def set_hsv_range(self, hsv_range):
         for color, (low, up) in hsv_range.items():
-            v_l = StringVar(self)
-            v_l.set(str(low))
-            v_r = StringVar(self)
-            v_r.set(str(up))
+            v_l = StringVar(self, value=str(low))
+            v_r = StringVar(self, value=str(up))
             self.hsv_range_vars[color] = (v_l, v_r)
         
         self.visualPanel = self.init_visual_panel()
@@ -108,10 +105,10 @@ class HSVAdjuster(Frame):
             Label(col1, text=prop).pack(fill=Y, expand=True)
 
             Scale(col2, from_=l, to=r, variable=self.lower_vars[i], tickinterval=r, command=self.sliding, \
-                orient=HORIZONTAL).pack(fill=Y, expand=True)
+                orient='horizontal').pack(fill=Y, expand=True)
 
             Scale(col3, from_=l, to=r, variable=self.upper_vars[i], tickinterval=r, command=self.sliding, \
-                orient=HORIZONTAL).pack(fill=Y, expand=True)
+                orient='horizontal').pack(fill=Y, expand=True)
 
         return adjustPanel
 
@@ -165,6 +162,47 @@ class HSVAdjuster(Frame):
             print('test', 'click save')
 
 
+class mySpinBox(Frame):
+    
+    def __init__(self, parent, title=None, var=None, change=None, range_=(0, 180)):
+
+        Frame.__init__(self, master=parent, pady=padding_y)
+
+        self.var = var or IntVar()
+        self.range = range_
+        self.change = change
+        self.title = title
+
+        self.init_widgets()
+
+    def init_widgets(self):
+
+        if self.title:
+             Label(self,text=self.title, width=6).pack(side=LEFT)
+
+        c = Frame(self)
+        c.pack(side=RIGHT, fill=X, expand=True)
+        HoverButton(c, text='-', params=-1, click=self.action) \
+            .pack(side=LEFT, fill=X, expand=True)
+        Entry(c, textvariable=self.var, width=4, bd=0, state='disabled', justify='center') \
+            .pack(side=LEFT, fill=BOTH, expand=True)
+        HoverButton(c, text='+', params=1, click=self.action) \
+            .pack(side=LEFT, fill=X, expand=True)
+
+    def action(self, op):
+        val = int(self.var.get())
+        val += op
+
+        if self.range and (val < self.range[0] or val > self.range[1]):
+                val -= op
+                return
+
+        self.var.set(str(val))
+
+        if self.change:
+            self.change(self.title, val)
+
+
 class SampleAdjuster(Frame):
 
     '''
@@ -189,39 +227,65 @@ class SampleAdjuster(Frame):
         self.bigscreen = None       # tuple: (w, h): size of bigsreen, passed by caller, 
         self.sample = None          # list: [x, y, w]: sample in smallscreen
 
-        self.scale_step = StringVar()
-        self.scale_step.set('10')
+        self.scale_step = StringVar(value='10')
 
-        self.init_panel()
+        self.toggle_val = True
+        self.init_canvas_panel().pack(fill=BOTH, expand=True)
 
-        self.bind_events()
+    def init_canvas_panel(self):
 
-    def init_panel(self):
+        self.canvas_panel = cp = Frame(self)
 
-        panel = Frame(self)
+        control = Frame(cp)
+        control.pack(fill=X)
+
+        Label(control, text='缩放步长').pack(side=LEFT)
+        vcmd = (control.register(lambda c: c.isdigit()), '%P')
+        Entry(control, textvariable=self.scale_step, validate='key', vcmd=vcmd, width=4)\
+            .pack(side=LEFT, fill=Y)
+        HoverButton(control, text="缩小", params=-1, click=self.change_scale) \
+            .pack(side=LEFT, fill=X, expand=True, padx=6)
+        HoverButton(control, text="放大", params=1, click=self.change_scale) \
+            .pack(side=LEFT, fill=X, expand=True)
+        HoverButton(control, text="保存", command=self.save_setting).pack(side=LEFT, fill=X, expand=True, padx=6)
+        HoverButton(control, text="⚙", command=self.toggle).pack(side=LEFT, fill=X, expand=True)
+
+        panel = Frame(cp)
         panel.pack(fill=BOTH, expand=True)
         
         self.canvas = Canvas(panel, bg='white', width=40, height=30, bd=0, highlightthickness=0)
         self.canvas.pack(fill=BOTH, expand=True, pady=4)
-
-        control = Frame(self)
-        control.pack(fill=X)
-
-        HoverButton(control, text="缩小", params=-1, click=self.change_scale).pack(side=LEFT, fill=X, expand=True)
-        Label(control, text='缩放速度').pack(side=LEFT)
-        vcmd = (control.register(lambda c: c.isdigit()), '%P')
-        Entry(control, textvariable=self.scale_step, validate='key', vcmd=vcmd, width=5)\
-            .pack(side=LEFT, fill=Y)
-        HoverButton(control, text="放大", params=1, click=self.change_scale) \
-            .pack(side=LEFT, fill=X, expand=True, padx=6)
-        HoverButton(control, text="保存", command=self.save_sample).pack(side=LEFT, fill=X)
-
-
-    def bind_events(self):
-
         self.canvas.bind("<Enter>", self.init_projection)
 
+        return cp
+
+    def init_data_panel(self):
+
+        self.data_panel = dp = Frame(self)
+        control = Frame(dp)
+        control.pack(fill=X)
+
+        HoverButton(control, text="保存", command=self.save_setting).pack(side=LEFT, fill=X, expand=True)
+        Label(control).pack(side=LEFT)
+        HoverButton(control, text="返回", command=self.toggle).pack(side=LEFT, fill=X, expand=True)
+
+        col1 = Frame(dp)
+        col1.pack(side=LEFT, fill=BOTH, expand=True)
+        for color, var in self.hrs:
+            mySpinBox(col1, title=color, var=var, change=self.color_hsv_changed).pack(fill=X)
+
+        col2 = Frame(dp)
+        col2.pack(side=LEFT, fill=BOTH, expand=True)
+        mySpinBox(col2, title='sline', var=self.sd, range_=(0, 255), change=self.color_hsv_changed).pack(fill=X)
+        for color, var in self.vrs:
+            mySpinBox(col2, title=color, var=var, range_=(0, 255), change=self.color_hsv_changed).pack(fill=X)
+
+        return dp
+
     def init_projection(self, e=None):
+
+        if not self.bigscreen:
+            return
 
         if not self.smallscreen:
             # aspect rate of big screen
@@ -280,7 +344,10 @@ class SampleAdjuster(Frame):
         self.canvas.coords(self.sample_area, x, y, x+w, y+w)
 
         if self.adjusting:
-            self.adjusting(list(map(lambda v: int(self.projection_rate*v), self.sample)))
+            self.adjusting(
+                'sample',
+                list(map(lambda v: int(self.projection_rate*v), self.sample))
+            )
 
         else:
             print('test', 'sliding', e)
@@ -299,11 +366,18 @@ class SampleAdjuster(Frame):
         if self.sample[1] + w > H:
             self.sample[1] = H - w
 
-    def set_data(self, sample, bigscreen):
+    def set_data(self, sample, bigscreen, color_hsv):
 
         self.sample = sample.copy()
 
         self.bigscreen = bigscreen
+
+        hrs, sd, vrs = color_hsv
+        self.hrs = list(map(lambda t: (t[0], IntVar(value=t[1])), hrs))
+        self.sd = IntVar(value=sd)
+        self.vrs = list(map(lambda t: (t[0], IntVar(value=t[1])), vrs))
+
+        self.init_data_panel()
 
     def change_scale(self, arg):
 
@@ -311,14 +385,34 @@ class SampleAdjuster(Frame):
 
         self.refresh()
 
-    def save_sample(self):
+    def color_hsv_changed(self, color, val):
+        hrs = list(map(lambda t: (t[0], t[1].get()), self.hrs))
+        sd = self.sd.get()
+        vrs = list(map(lambda t: (t[0], t[1].get()), self.vrs))
+        if self.adjusting:
+            self.adjusting(
+                'hsv',
+                (hrs, sd, vrs)
+            )
+
+    def save_setting(self):
 
         if self.save:
             self.save()
 
         else:
             print('test', 'click save')
+    
+    def toggle(self):
+        self.toggle_val = not self.toggle_val
 
+        if self.toggle_val:
+            self.data_panel.pack_forget()
+            self.canvas_panel.pack(fill=BOTH, expand=True)
+        
+        else:
+            self.canvas_panel.pack_forget()
+            self.data_panel.pack(fill=BOTH, expand=True)
 
 
 if __name__ == "__main__":
@@ -326,6 +420,15 @@ if __name__ == "__main__":
     from tkinter import Tk
 
     window = Tk()
-    # HSVAdjuster(window).pack()
-    SampleAdjuster(window).pack(fill=BOTH, expand=True)
+    hr = {
+        'Red'   : ([156,  43,  46], [180, 255, 255]), # Red
+        'red'   : ([  0,  43,  46], [ 13, 255, 255]), # Red
+        'blue'  : ([ 69, 120, 100], [179, 255, 255]), # Blue
+        'yellow': ([ 21, 110, 117], [ 45, 255, 255]), # Yellow
+        'orange': ([  0, 110, 125], [ 17, 255, 255]), # Orange
+        'white' : ([  0,   0, 221], [180,  30, 255]), # White
+        'green' : ([ 35,  43,  46], [ 77, 255, 255]), # Green
+    }
+    HSVAdjuster(window).set_hsv_range(hr).pack()
+    # SampleAdjuster(window).pack(fill=BOTH, expand=True)
     window.mainloop()

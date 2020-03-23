@@ -20,9 +20,8 @@ class App:
         # cube scaning toggler
         self.scaning = False
         self.scan_modes = [('自动定位魔方', 'a'), ('手动定位', 'm')]
-        self.scan_mode = StringVar()
         self.last_scan_mode = 'm'
-        self.scan_mode.set(self.last_scan_mode)
+        self.scan_mode = StringVar(value=self.last_scan_mode)
 
         # hsv color filter range
         self.hsv_mask_range = None
@@ -30,18 +29,16 @@ class App:
         # status text
         self.status_var = StringVar(self.window)
         # video button text
-        self.video_btn_var = StringVar(self.window)
         self.video_texts = ['开启摄像头', '关闭摄像头']
-        self.video_btn_var.set(self.video_texts[0])
+        self.video_btn_var = StringVar(self.window, value=self.video_texts[0])
         # scan button text
-        self.scan_btn_var = StringVar(self.window)
         self.scan_texts = ['扫描魔方', '停止扫描']
-        self.scan_btn_var.set(self.scan_texts[0])
+        self.scan_btn_var = StringVar(self.window, value=self.scan_texts[0])
 
         # create weigets
         self.init_ui(self.window)
-        # set data to widgets
-        self.init_data()
+        # set setting data to widgets
+        self.load_setting()
         
         self.update_delay = 33
         # update_func will be called in update
@@ -87,19 +84,20 @@ class App:
             .pack(side=LEFT, fill=X, expand=True)
         
         self.hsv_adjuster = HSVAdjuster(Adjuster, toggle=self.hsv_toggle, adjusting=self.hsv_update, save=self.hsv_save)
-        self.sample_adjuster = SampleAdjuster(Adjuster, adjusting=self.resample, save=self.save_sample)
+        self.sample_adjuster = SampleAdjuster(Adjuster, adjusting=self.resample, save=st.store)
         self.sample_adjuster.pack(fill=BOTH, expand=True)
 
         Bottom = Frame(window, bg='white')
         Bottom.pack(side=BOTTOM, fill=X)
         Label(Bottom, textvariable=self.status_var, bg='white').pack(side=LEFT, padx=st.L_PADDING)
 
-    def init_data(self):
+    def load_setting(self):
         
         self.hsv_adjuster.set_hsv_range(st.hsv_ranges)
 
         width_height = (self.media_canvas.width, self.media_canvas.height)
-        self.sample_adjuster.set_data(st.sample, width_height)
+        color_hsv = (st.h_ranges, st.s_divide, st.v_ranges)
+        self.sample_adjuster.set_data(st.sample, width_height, color_hsv)
 
     def scan_mode_change(self):
 
@@ -117,13 +115,14 @@ class App:
             self.sample_adjuster.pack_forget()
             self.hsv_adjuster.pack(fill=BOTH, expand=True)
 
-    def resample(self, data):
+    def resample(self, t, data):
         
-        count_sample_points(data)
+        if t == 'sample':
+            count_sample_points(data)
+        
+        elif t == 'hsv':
+            st.h_ranges, st.s_divide, st.v_ranges = data
 
-    def save_sample(self):
-
-        st.store()
 
     def toggle_camera(self):
 
@@ -176,7 +175,6 @@ class App:
         self.media_canvas.refresh(frame)
 
         if result:
-            print(result)
             self.floorplan.showResult(result)
 
     def filter_hsv_color(self):
