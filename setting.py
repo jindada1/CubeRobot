@@ -51,10 +51,10 @@ v_ranges = [
 __config_file = 'config.json'
 __config_format = {
     'hsv_ranges': {},
-    'h_ranges': [],
-    's_divide': 43,
-    'v_ranges': [],
-    'sample': []
+    'h_ranges':   [],
+    's_divide':   43,
+    'v_ranges':   [],
+    'sample':     []
 }
 
 def init():

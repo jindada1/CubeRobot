@@ -51,13 +51,30 @@ class App:
     def init_ui(self, window):
 
         Top = Frame(window)
-        Top.pack(side=TOP, pady=st.L_PADDING)
+        Top.pack(side=TOP, fill=X, pady=st.L_PADDING)
 
         Left = Frame(Top)
-        Left.pack(side=LEFT, fill=Y, padx=st.L_PADDING)
-        self.media_canvas = CameraCanvas(Left)
+        Left.pack(side=LEFT, fill=BOTH, expand=True, padx=st.L_PADDING)
+        
+        D = Frame(Left, height=st.L_PADDING)
+        D.pack(fill=BOTH, expand=True)
+        self.debug = Debug = Text(D, width=20)
+        Debug.pack(side=LEFT, fill=BOTH)
+        S = Scrollbar(D)
+        S.pack(side=RIGHT, fill=Y)
+        S.config(command=Debug.yview)
+        Debug.config(yscrollcommand=S.set)
+
+        Frame(Left, height=st.L_PADDING).pack(fill=X)
+        HoverButton(Left, text='清空控制台').pack(side=LEFT, fill=X, expand=True)
+        Frame(Left, width=16).pack(side=LEFT)
+
+        Mid = Frame(Top)
+        Mid.pack(side=LEFT, fill=Y, padx=st.L_PADDING)
+        self.media_canvas = CameraCanvas(Mid)
         self.media_canvas.pack()
-        mediaMode = Frame(Left)
+        Frame(Mid, height=st.L_PADDING).pack(fill=X)
+        mediaMode = Frame(Mid)
         mediaMode.pack(fill=X)
         for text, mode in self.scan_modes:
             Radiobutton(mediaMode, text=text, variable=self.scan_mode, value=mode, command=self.scan_mode_change)\

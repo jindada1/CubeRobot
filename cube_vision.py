@@ -31,6 +31,7 @@ import setting
 open_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
 close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
 sample_points = [[] for i in range(9)]
+sample_border = [(0, 0),(100, 100)]
 
 def straighten(contours: list) -> tuple:
     ''' 
@@ -160,6 +161,9 @@ def count_sample_points(new_data=None):
 
     x, y, w = setting.sample
     
+    sample_border[0] = (x, y)
+    sample_border[1] = (x + 3*w, y + 3*w)
+
     # 3 x 3 grids per face
     for i in range(9):
         col, row = i % 3, i // 3
@@ -206,6 +210,7 @@ def manual_find(image):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     face = []
 
+    cv2.rectangle(image, sample_border[0], sample_border[1], (0, 0, 0), 2)
     for points in grid_samples:
         grid_color_candidates = []
         for point in points:
@@ -213,6 +218,7 @@ def manual_find(image):
             cv2.circle(image, point, 2, setting.bgr_colors[color] , 2)
             grid_color_candidates.append(color)
         
+        # get the most frequent color as the final result
         grid_color = max(set(grid_color_candidates), key = grid_color_candidates.count)
         face.append(grid_color)
 
