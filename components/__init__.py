@@ -6,13 +6,16 @@ from .button import HoverButton
 from .canvas import CameraCanvas, CubeFloorPlan
 from .frame import HSVAdjuster, SampleAdjuster, Console
 
+from .window import Window
+
 __all__ = [
     'HoverButton',
     'CameraCanvas',
     'CubeFloorPlan',
     'HSVAdjuster',
     'SampleAdjuster',
-    'Console'
+    'Console',
+    'Window'
 ]
 
 __version__ = '1.0'

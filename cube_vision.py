@@ -140,6 +140,7 @@ def scan_cube(image, mode) -> list:
             ],
             image: modified image
     '''
+
     if mode == 'm':
         return manual_find(image)
 

@@ -3,23 +3,20 @@
         1. tkinter ui and widgets
         -> https://effbot.org/tkinterbook
 '''
-from tkinter import ttk, filedialog
+from tkinter import filedialog
 from tkinter import *
-
 from components import *
-# from vision import grab_colors
 from cube_vision import hsv_range_mask, scan_cube, count_sample_points
 import setting as st
 
-class App:
+class Configutator(Window):
     '''
     gui window for configuring data used for cube vision (config.json)
     '''
 
     def __init__(self, title):
 
-        self.window = Tk()
-        self.window.title(title)
+        Window.__init__(self, title=title)
 
         # cube scaning toggler
         self.scaning = False
@@ -31,30 +28,25 @@ class App:
         self.hsv_mask_range = None
 
         # status text
-        self.status_var = StringVar(self.window)
+        self.status_var = StringVar(self)
         # video button text
         self.video_texts = ['开启摄像头', '关闭摄像头']
-        self.video_btn_var = StringVar(self.window, value=self.video_texts[0])
+        self.video_btn_var = StringVar(self, value=self.video_texts[0])
         # scan button text
         self.scan_texts = ['扫描魔方', '停止扫描']
-        self.scan_btn_var = StringVar(self.window, value=self.scan_texts[0])
+        self.scan_btn_var = StringVar(self, value=self.scan_texts[0])
 
         # create weigets
-        self.init_ui(self.window)
+        self.init_ui()
         # set setting data to widgets
         self.load_setting()
         
-        self.update_delay = 33
         # update_func will be called in update
-        self.update_func = None
-        # update will be automatically called every {update_delay} milliseconds
-        self.update()
+        self.update_func = self.refresh
 
-        self.window.mainloop()
+    def init_ui(self):
 
-    def init_ui(self, window):
-
-        Top = Frame(window)
+        Top = Frame(self)
         Top.pack(side=TOP, fill=X, pady=st.L_PADDING)
 
         Left = Frame(Top)
@@ -78,13 +70,17 @@ class App:
 
         RightDown = Frame(Right)
         RightDown.pack(side=BOTTOM, fill=BOTH, expand=True)
+
         Adjuster = Frame(RightDown)
         Adjuster.pack(fill=BOTH, expand=True)
+
         HoverButton(RightDown, textvariable=self.video_btn_var, command=self.toggle_camera) \
             .pack(side=LEFT, fill=X, expand=True)
         Label(RightDown).pack(side=LEFT)
+
         HoverButton(RightDown, text="打开图片", command=self.open_photo).pack(side=LEFT, fill=X, expand=True)
         Label(RightDown).pack(side=LEFT)
+
         HoverButton(RightDown, textvariable=self.scan_btn_var, command=self.toggle_scan) \
             .pack(side=LEFT, fill=X, expand=True)
         
@@ -92,7 +88,7 @@ class App:
         self.sample_adjuster = SampleAdjuster(Adjuster, adjusting=self.resample, save=st.store)
         self.sample_adjuster.pack(fill=BOTH, expand=True)
 
-        Bottom = Frame(window, bg='white')
+        Bottom = Frame(self, bg='white')
         Bottom.pack(side=BOTTOM, fill=X)
         Label(Bottom, textvariable=self.status_var, bg='white').pack(side=LEFT, padx=st.L_PADDING)
 
@@ -160,7 +156,7 @@ class App:
                 self.update_func = self.get_cube_color
 
         else:
-            self.update_func = None
+            self.update_func = self.refresh
             if self.media_canvas.Mode == 1:
                 self.status_var.set('使用摄像头中')
             
@@ -177,10 +173,13 @@ class App:
     
     def get_cube_color(self):
         scan_mode = self.scan_mode.get()
-        
         frame = self.media_canvas.frame()
+        
+        if frame is None:
+            return
+
         result, frame = scan_cube(frame, scan_mode)
-        self.media_canvas.refresh(frame)
+        self.refresh(frame)
 
         if result:
             self.floorplan.showResult(result)
@@ -188,8 +187,12 @@ class App:
     def filter_hsv_color(self):
 
         frame = self.media_canvas.frame()
+        
+        if frame is None:
+            return
+
         mask = hsv_range_mask(frame, self.hsv_mask_range)
-        self.media_canvas.refresh(mask)
+        self.refresh(mask)
 
     def hsv_save(self, item):
 
@@ -210,19 +213,12 @@ class App:
                 self.update_func = self.filter_hsv_color
 
         else:
-            self.update_func = None
+            self.update_func = self.refresh
 
-    def update(self):
+    def refresh(self, image=None):
 
-        if self.update_func:
-            self.update_func()
-
-        else:
-            self.media_canvas.refresh()
-
-        self.window.after(self.update_delay, self.update)
-
+        self.media_canvas.refresh(image)
 
 if __name__ == "__main__":
 
-    App('test')
+    Configutator('test').run()
