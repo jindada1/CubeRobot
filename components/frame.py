@@ -1,4 +1,4 @@
-from tkinter import ttk, Frame, Scale, Label, Entry, Canvas
+from tkinter import ttk, Frame, Scale, Label, Entry, Canvas, Scrollbar, Text
 from tkinter import LEFT, RIGHT, BOTH, X, Y, IntVar, StringVar
 
 try:
@@ -415,6 +415,67 @@ class SampleAdjuster(Frame):
             self.data_panel.pack(fill=BOTH, expand=True)
 
 
+class Console(Frame):
+
+    def __init__(self, parent, debug=False):
+        
+        Frame.__init__(self, master=parent)
+
+        self.line = 1
+        self.debug = debug
+
+        self.initwidgets()
+
+    def initwidgets(self):
+        
+        D = Frame(self, height=10)
+        D.pack(fill=BOTH, expand=True)
+        self.content = C = Text(D, width=20)
+
+        C.tag_config('index',foreground='green', background="whitesmoke" )
+        C.tag_config('warning',foreground='black', background="lemonchiffon" )
+        C.bind("<Key>", lambda e: self.__ctrl(e))
+
+        C.pack(side=LEFT, fill=BOTH, expand=True)
+
+        S = Scrollbar(D)
+        S.pack(side=RIGHT, fill=Y)
+
+        S.config(command=C.yview)
+        C.config(yscrollcommand=S.set)
+
+        Frame(self, height=10).pack(fill=X)
+        HoverButton(self, text='清空控制台', command=self.clear).pack(side=LEFT, fill=X, expand=True)
+
+        if self.debug:
+            HoverButton(self, text='插入', command=self.__addline).pack(side=LEFT, fill=X, expand=True)
+
+        Frame(self, width=16).pack(side=LEFT)
+
+    def __ctrl(self, event):
+        if(12==event.state and event.keysym=='c' ):
+            return
+        else:
+            self.log('read only', 'warning')
+            return "break"
+            
+    def log(self, text, tag=None):
+        
+        self.content.insert('end', "%3d " % self.line, 'index')
+        self.content.insert('end', "%s\n" % text, tag)
+        self.line += 1
+        self.content.see('end')
+    
+    def clear(self):
+
+        self.line = 1
+        self.content.delete('1.0','end')
+    
+    def __addline(self):
+
+        self.log('debug')
+
+
 if __name__ == "__main__":
 
     from tkinter import Tk
@@ -429,6 +490,7 @@ if __name__ == "__main__":
         'white' : ([  0,   0, 221], [180,  30, 255]), # White
         'green' : ([ 35,  43,  46], [ 77, 255, 255]), # Green
     }
-    HSVAdjuster(window).set_hsv_range(hr).pack()
+    # HSVAdjuster(window).set_hsv_range(hr).pack()
     # SampleAdjuster(window).pack(fill=BOTH, expand=True)
+    Console(window, debug=True).pack(fill=BOTH, expand=True)
     window.mainloop()

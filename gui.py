@@ -1,4 +1,8 @@
-
+'''
+    reference:
+        1. tkinter ui and widgets
+        -> https://effbot.org/tkinterbook
+'''
 from tkinter import ttk, filedialog
 from tkinter import *
 
@@ -12,10 +16,13 @@ class App:
     main gui window of this project
     '''
 
-    def __init__(self, title):
+    def __init__(self, title, control=False):
 
         self.window = Tk()
         self.window.title(title)
+
+        # whether this gui window controled by other thread
+        self.control = control
 
         # cube scaning toggler
         self.scaning = False
@@ -56,18 +63,8 @@ class App:
         Left = Frame(Top)
         Left.pack(side=LEFT, fill=BOTH, expand=True, padx=st.L_PADDING)
         
-        D = Frame(Left, height=st.L_PADDING)
-        D.pack(fill=BOTH, expand=True)
-        self.debug = Debug = Text(D, width=20)
-        Debug.pack(side=LEFT, fill=BOTH)
-        S = Scrollbar(D)
-        S.pack(side=RIGHT, fill=Y)
-        S.config(command=Debug.yview)
-        Debug.config(yscrollcommand=S.set)
-
-        Frame(Left, height=st.L_PADDING).pack(fill=X)
-        HoverButton(Left, text='清空控制台').pack(side=LEFT, fill=X, expand=True)
-        Frame(Left, width=16).pack(side=LEFT)
+        self.console = Console(Left)
+        self.console.pack(fill=BOTH, expand=True)
 
         Mid = Frame(Top)
         Mid.pack(side=LEFT, fill=Y, padx=st.L_PADDING)
@@ -109,12 +106,16 @@ class App:
         Label(Bottom, textvariable=self.status_var, bg='white').pack(side=LEFT, padx=st.L_PADDING)
 
     def load_setting(self):
-        
+        # initialize setting
+        st.init()
+
         self.hsv_adjuster.set_hsv_range(st.hsv_ranges)
 
         width_height = (self.media_canvas.width, self.media_canvas.height)
         color_hsv = (st.h_ranges, st.s_divide, st.v_ranges)
         self.sample_adjuster.set_data(st.sample, width_height, color_hsv)
+
+        self.console.log('已加载配置文件')
 
     def scan_mode_change(self):
 
@@ -139,7 +140,6 @@ class App:
         
         elif t == 'hsv':
             st.h_ranges, st.s_divide, st.v_ranges = data
-
 
     def toggle_camera(self):
 
@@ -233,7 +233,5 @@ class App:
 
 
 if __name__ == "__main__":
-
-    st.init()
 
     App('test')
