@@ -13,16 +13,13 @@ import setting as st
 
 class App:
     '''
-    main gui window of this project
+    gui window for configuring data used for cube vision (config.json)
     '''
 
-    def __init__(self, title, control=False):
+    def __init__(self, title):
 
         self.window = Tk()
         self.window.title(title)
-
-        # whether this gui window controled by other thread
-        self.control = control
 
         # cube scaning toggler
         self.scaning = False
@@ -61,17 +58,11 @@ class App:
         Top.pack(side=TOP, fill=X, pady=st.L_PADDING)
 
         Left = Frame(Top)
-        Left.pack(side=LEFT, fill=BOTH, expand=True, padx=st.L_PADDING)
-        
-        self.console = Console(Left)
-        self.console.pack(fill=BOTH, expand=True)
-
-        Mid = Frame(Top)
-        Mid.pack(side=LEFT, fill=Y, padx=st.L_PADDING)
-        self.media_canvas = CameraCanvas(Mid)
+        Left.pack(side=LEFT, fill=Y, padx=st.L_PADDING)
+        self.media_canvas = CameraCanvas(Left)
         self.media_canvas.pack()
-        Frame(Mid, height=st.L_PADDING).pack(fill=X)
-        mediaMode = Frame(Mid)
+        Frame(Left, height=st.L_PADDING).pack(fill=X)
+        mediaMode = Frame(Left)
         mediaMode.pack(fill=X)
         for text, mode in self.scan_modes:
             Radiobutton(mediaMode, text=text, variable=self.scan_mode, value=mode, command=self.scan_mode_change)\
@@ -115,7 +106,7 @@ class App:
         color_hsv = (st.h_ranges, st.s_divide, st.v_ranges)
         self.sample_adjuster.set_data(st.sample, width_height, color_hsv)
 
-        self.console.log('已加载配置文件')
+        self.status_var.set('已加载配置文件')
 
     def scan_mode_change(self):
 
