@@ -51,8 +51,8 @@ class Configutator(Window):
 
         Left = Frame(Top)
         Left.pack(side=LEFT, fill=Y, padx=st.L_PADDING)
-        self.media_canvas = CameraCanvas(Left)
-        self.media_canvas.pack()
+        self.view = ViewCanvas(Left)
+        self.view.pack()
         Frame(Left, height=st.L_PADDING).pack(fill=X)
         mediaMode = Frame(Left)
         mediaMode.pack(fill=X)
@@ -98,7 +98,7 @@ class Configutator(Window):
 
         self.hsv_adjuster.set_hsv_range(st.hsv_ranges)
 
-        width_height = (self.media_canvas.width, self.media_canvas.height)
+        width_height = (self.view.width, self.view.height)
         color_hsv = (st.h_ranges, st.s_divide, st.v_ranges)
         self.sample_adjuster.set_data(st.sample, width_height, color_hsv)
 
@@ -130,19 +130,19 @@ class Configutator(Window):
 
     def toggle_camera(self):
 
-        if self.media_canvas.Mode == 1:
-            self.media_canvas.closeCamera()
+        if self.view.Mode == 1:
+            self.view.close_camera()
             self.status_var.set('摄像头已关闭')
             
         else:
-            self.media_canvas.openCamera(1)
+            self.view.open_camera()
             self.status_var.set('使用摄像头中')
 
-        self.video_btn_var.set(self.video_texts[self.media_canvas.Mode])
+        self.video_btn_var.set(self.video_texts[self.view.Mode])
 
     def toggle_scan(self):
 
-        if self.media_canvas.Mode == 0:
+        if self.view.Mode == 0:
             self.status_var.set('请开启摄像头或打开图片')
             self.scan_btn_var.set(self.scan_texts[0])
             return
@@ -152,15 +152,15 @@ class Configutator(Window):
         if self.scaning:
             self.status_var.set('正在扫描魔方')
 
-            if self.media_canvas.Mode > 0:
+            if self.view.Mode > 0:
                 self.update_func = self.get_cube_color
 
         else:
             self.update_func = self.refresh
-            if self.media_canvas.Mode == 1:
+            if self.view.Mode == 1:
                 self.status_var.set('使用摄像头中')
             
-            if self.media_canvas.Mode == 2:
+            if self.view.Mode == 2:
                 self.status_var.set('图片')
 
         self.scan_btn_var.set(self.scan_texts[self.scaning])
@@ -169,11 +169,12 @@ class Configutator(Window):
         
         picpath = filedialog.askopenfilename()
 
-        self.media_canvas.add_pic(picpath)
+        self.view.addpic(picpath)
     
     def get_cube_color(self):
+        
         scan_mode = self.scan_mode.get()
-        frame = self.media_canvas.frame()
+        frame = self.view.screen()
         
         if frame is None:
             return
@@ -186,7 +187,7 @@ class Configutator(Window):
 
     def filter_hsv_color(self):
 
-        frame = self.media_canvas.frame()
+        frame = self.view.screen()
         
         if frame is None:
             return
@@ -209,7 +210,7 @@ class Configutator(Window):
             # filter hsv color
             self.hsv_mask_range = hsv_range
 
-            if self.media_canvas.Mode > 0:
+            if self.view.Mode > 0:
                 self.update_func = self.filter_hsv_color
 
         else:
@@ -217,7 +218,7 @@ class Configutator(Window):
 
     def refresh(self, image=None):
 
-        self.media_canvas.refresh(image)
+        self.view.refresh(image)
 
 if __name__ == "__main__":
 

@@ -54,7 +54,6 @@ def straighten(contours: list) -> tuple:
                 ...
             ]
     '''
-
     rects = []
     for cont in contours:
 
@@ -89,7 +88,6 @@ def sort_coordinate(grids: dict) -> list:
                 [color,color,color]
             ]
     '''
-
     # sort coordinates by row
     coordinates = sorted(list(grids.keys()), key=lambda x_y: x_y[1])
 
@@ -140,7 +138,6 @@ def scan_cube(image, mode) -> list:
             ],
             image: modified image
     '''
-
     if mode == 'm':
         return manual_find(image)
 
@@ -186,7 +183,6 @@ def count_sample_points(new_data=None):
     
 
 def get_color(hsv_value):
-
     h, s, v = hsv_value
     
     if s < setting.s_divide:
@@ -202,6 +198,24 @@ def get_color(hsv_value):
                 return color
     
     return 'error'
+
+
+def sample(image):
+
+    grid_samples = sample_coordinates()
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    face = []
+
+    for points in grid_samples:
+        grid = []
+        for point in points:
+            color = get_color(hsv[point[1], point[0]])
+            grid.append(color)
+        
+        face.append(grid)
+
+    return face, image
+
 
 def manual_find(image):
     '''
@@ -257,13 +271,11 @@ def auto_find(image):
             cv2.rectangle(image, rect[0], rect[1], setting.bgr_colors[color], 2)
 
     result = sort_coordinate(grids)
-
     return result, image
 
 
 # test method
 def _cube_vision_test():
-
     # setting.init()
     image = cv2.imread('tests/in/Cube_1.png')
     colors, face = scan_cube(image, 'm')

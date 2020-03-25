@@ -7,82 +7,53 @@ references:
     -> https://github.com/hkociemba/RubiksCube-TwophaseSolver/blob/master/client_gui.py
 
 '''
-
+try:
+    from . import Camera
+except:
+    from video import Camera
 
 import cv2
 from tkinter import Canvas, NW
 from PIL import Image, ImageTk
 
-
-class CameraCanvas(Canvas):
-
-    '''
-        CameraCanvas can get frames from camera and display on self.
-
-        valid frame size (width x height):
-            640 x 480
-            352 x 288
-            320 x 240
-            176 x 144
-            160 x 120
-    '''
+class ViewCanvas(Canvas):
 
     def __init__(self, parent):
-
         self.width = 640
         self.height = 480
+        self.white = [255, 255, 255]
 
         Canvas.__init__(self, master=parent, width=self.width, height=self.height,
                         bg='white', bd=0, highlightthickness=0)
 
-        self.video = None
+        # Open the camera, default 0 is the first camera device on you computer
+        self.camera = Camera(w=self.width, h=self.height)
         self.picture = None
-        self.white = [255, 255, 255]
 
         # 0:nothing, 1:camera, 2:picture
         self.Mode = 0
 
-    # Release the video source when the object is destroyed
-    def __del__(self):
-        self.closeCamera()
-
-    def openCamera(self, camera_id=0):
-
-        # Open the camera, default 0 is the first camera device on you computer
-        self.video = cv2.VideoCapture(camera_id, cv2.CAP_DSHOW)
-        if not self.video.isOpened():
-            if camera_id > 0:
-                self.openCamera(camera_id-1)
-                return
-            else:
-                raise ValueError("Unable to open video source", camera_id)
-
-        self.video.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-        self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-
+    def open_camera(self):
+        self.camera.open()
         self.Mode = 1
 
-    def closeCamera(self):
+    def close_camera(self):
+        self.camera.close()
+        self.Mode = 0
 
-        if self.video and self.video.isOpened():
-            self.video.release()
-            self.Mode = 0
-
-    # get frame of camera
-    def frame(self):
+    # get frame in screen
+    def screen(self):
         if self.Mode == 1:
-            ret, frame = self.video.read()
-            return frame if ret else None
+            return self.camera.frame()
 
         elif self.Mode == 2:
             return self.picture.copy()
 
-    # display camera on canvas
+    # display frame on canvas
     def refresh(self, frame=None):
-
         if frame is None:
             # Get a frame from the video source
-            frame = self.frame()
+            frame = self.screen()
 
         if frame is None:
             return
@@ -90,27 +61,23 @@ class CameraCanvas(Canvas):
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         # must have 'self', otherwise photo will not be shown
         self.photo = ImageTk.PhotoImage(image=Image.fromarray(rgb))
-        
         self.create_image(0, 0, image=self.photo, anchor=NW)
 
-    def add_pic(self, filepath):
-
+    def addpic(self, filepath):
         if not filepath:
             return
 
         if self.Mode == 1:
-            self.closeCamera()
+            self.close_camera()
             
+        self.picture = self.validate(cv2.imread(filepath))
         self.Mode = 2
 
-        self.picture = self.validate(cv2.imread(filepath))
-
     def validate(self, image):
-        
+
         (h, w) = image.shape[:2]
 
         if w > self.width:
-            
             h = int(self.width * (h / w))
             w = self.width
 
@@ -131,6 +98,23 @@ class CameraCanvas(Canvas):
         image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=self.white)
         
         return image
+
+
+class CameraCanvas(Canvas):
+
+    def __init__(self, parent, w=200, h=200):
+
+        Canvas.__init__(self, master=parent, width=w, height=h, bg='white', bd=0, highlightthickness=0)
+
+    # 设置 frame 在底层
+    def setframe(self, frame):
+        if frame is None:
+            return
+
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # must have 'self', otherwise photo will not be shown
+        self.photo = ImageTk.PhotoImage(image=Image.fromarray(rgb))
+        self.create_image(0, 0, image=self.photo, anchor=NW)
 
 
 class CubeFloorPlan(Canvas):
