@@ -33,6 +33,7 @@ close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
 sample_points = [[] for i in range(9)]
 sample_border = [(0, 0),(100, 100)]
 
+
 def straighten(contours: list) -> tuple:
     ''' 
         find the left-top and the right-bottom in every contour(a group of points).
@@ -76,17 +77,17 @@ def sort_coordinate(grids: dict) -> list:
         input:
             grids : {
                 (x1, y1):color,
-                (x1, y1):color,
-                (x1, y1):color,
+                (x2, y2):color,
+                (x3, y3):color,
                 ...
             }
 
         output:
-            colors in a face, a 3x3 array:[
-                [color,color,color],
-                [color,color,color],
-                [color,color,color]
-            ]
+            colors in a face, a list with 9 colors: [
+                color,color,color,
+                color,color,color,
+                color,color,color
+            ],
     '''
     # sort coordinates by row
     coordinates = sorted(list(grids.keys()), key=lambda x_y: x_y[1])
@@ -106,7 +107,7 @@ def sort_coordinate(grids: dict) -> list:
         for i in range(3):
             row[i] = grids[row[i]].lower()
 
-    return face
+    return face[0] + face[1] + face[2]
 
 
 def hsv_range_mask(image: np.ndarray, _range: tuple) -> np.ndarray:
@@ -131,10 +132,10 @@ def scan_cube(image, mode) -> list:
             image(bgr)
 
         output:
-            colors in a face, a 3x3 array:[
-                [color,color,color],
-                [color,color,color],
-                [color,color,color]
+            colors in a face, a list with 9 colors: [
+                color,color,color,
+                color,color,color,
+                color,color,color
             ],
             image: modified image
     '''
@@ -143,6 +144,7 @@ def scan_cube(image, mode) -> list:
 
     if mode == 'a':
         return auto_find(image)
+
 
 def sample_coordinates():
 
@@ -210,7 +212,7 @@ def sample(image):
         grid = []
         for point in points:
             color = get_color(hsv[point[1], point[0]])
-            grid.append(color)
+            grid.append(color.lower())
         
         face.append(grid)
 
@@ -238,7 +240,7 @@ def manual_find(image):
         grid_color = max(set(grid_color_candidates), key = grid_color_candidates.count)
         face.append(grid_color)
 
-    return [face[:3], face[3:6], face[6:9]], image
+    return face, image
 
 
 def auto_find(image):
@@ -275,15 +277,35 @@ def auto_find(image):
     return result, image
 
 
-# test method
-def _cube_vision_test():
+def _test_sort_coordinate():
+
+    grids = {
+        (30, 30): 'color33',
+        (10, 20): 'color21',
+        (10, 10): 'color11',
+        (20, 30): 'color32',
+        (30, 20): 'color23',
+        (20, 10): 'color12',
+        (10, 30): 'color31',
+        (30, 10): 'color13',
+        (20, 20): 'color22'
+    }
+
+    a = sort_coordinate(grids)
+    print(a)
+
+
+def _test_scan_cube():
     # setting.init()
     image = cv2.imread('tests/in/Cube_1.png')
-    colors, face = scan_cube(image, 'm')
+    # colors, face = scan_cube(image, 'm')
+    colors, face = scan_cube(image, 'a')
     
     cv2.imshow('contours', image)
     cv2.waitKey()
 
+
 if __name__ == "__main__":
 
-    _cube_vision_test()
+    _test_sort_coordinate()
+    _test_scan_cube()

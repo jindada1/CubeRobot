@@ -183,7 +183,7 @@ class Configutator(Window):
         self.refresh(frame)
 
         if result:
-            self.floorplan.showResult(result)
+            self.floorplan.show_face(result)
 
     def filter_hsv_color(self):
 

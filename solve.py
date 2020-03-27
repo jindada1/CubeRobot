@@ -1,0 +1,21 @@
+import kociemba
+
+def solve(cube):
+
+    seq = kociemba.solve('DRLUUBFBRBLURRLRUBLRDDFDLFUFUFFDBRDUBRUFLLFDDBFLUBLRBD')
+
+    return seq
+
+
+if __name__ == "__main__":
+
+    r = solve('FLRRUUFFBUFDRRDFBUUDLLFUDBLBUDRDDUBRRFRLLFLBLBDDRBUBLF')
+    print(r)
+
+'''
+FLRRUUFFBUFDRRDFBUUDLLFUDBLBUDRDDUBRRFRLLFLBLBDDRBUBLF
+
+F2 U2 D3 B1 D2 F3 U1 F2 R1 L2 F3 B2 L2 F2 B2 L3 U2 R3 L2
+
+F2 => F 顺时针旋转 2 × 90°
+'''

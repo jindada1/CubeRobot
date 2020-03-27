@@ -29,6 +29,9 @@ class Controller(Window):
         self.canvas.pack()
 
         HoverButton(self.window, text='识别此面', command=self.getcolor).pack(fill=X)
+
+        self.floor = CubeFloorPlan(self.window)
+        self.floor.pack()
     
     def update(self):
 
@@ -51,9 +54,14 @@ class Controller(Window):
         else:
             self.id = 0
             face = list(map(lambda C: C.most_common()[0][0], self.grids))
-            print([face[:3], face[3:6], face[6:9]])
+            self.floor.show_face(face)
+            s = self.floor.definition_string()
+            print(s)
     
     def getcolor(self):
+        
+        if self.id:
+            return
 
         for i in range(9):
             self.grids[i] = Counter()

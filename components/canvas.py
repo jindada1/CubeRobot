@@ -220,11 +220,36 @@ class CameraCanvas(Canvas):
 class CubeFloorPlan(Canvas):
     '''
         draw floor plan of a rubik's cube
+        
+        The names of the facelet positions of the cube
+                       |--------------|
+                       | U1 | U2 | U3 |
+                       |--------------|
+                       | U4 | U5 | U6 |
+                       |--------------|
+                       | U7 | U8 | U9 |
+                       |--------------|
+        |--------------|--------------|--------------|--------------|
+        | L1 | L2 | L3 | F1 | F2 | F3 | R1 | R2 | R3 | B1 | B2 | B3 |
+        |--------------|--------------|--------------|--------------|
+        | L4 | L5 | L6 | F4 | F5 | F6 | R4 | R5 | R6 | B4 | B5 | B6 |
+        |--------------|--------------|--------------|--------------|
+        | L7 | L8 | L9 | F7 | F8 | F9 | R7 | R8 | R9 | B7 | B8 | B9 |
+        |--------------|--------------|--------------|--------------|
+                       |--------------|
+                       | D1 | D2 | D3 |
+                       |--------------|
+                       | D4 | D5 | D6 |
+                       |--------------|
+                       | D7 | D8 | D9 |
+                       |--------------|
+        
+        reference: https://pypi.org/project/kociemba/
     '''
 
     def __init__(self, parent):
 
-        self.square_width = sw = 20
+        self.grid_width = sw = 20
         self.padding = pd = 20
         width = 12 * sw + pd
         height = 9 * sw + pd
@@ -233,57 +258,90 @@ class CubeFloorPlan(Canvas):
 
         self.facelet_id = [[[0 for col in range(3)]
                             for row in range(3)] for face in range(6)]
-
-        self.squares, anchors = self.initSquares()
-        self.drawSquares(anchors)
+        
+        self.colors = {
+            'yellow': 'U',
+            'green' : 'R',
+            'red'   : 'F',
+            'white' : 'D',
+            'blue'  : 'L',
+            'orange': 'B'
+        }
+        self.faces = {} 
+        faces_pos = self.face_position()
+        self.draw_faces(faces_pos)
 
     # init square_id container and left-top coordinate of every face
-    def initSquares(self):
-        ''' initialize six faces '''
-        squares = {}
+    def face_position(self):
+
+        ''' 
+            initialize six faces
+        '''
+
         anchors = {}
-        colors = ("yellow", "green", "red", "white", "blue", "orange")
         offsets = ((1, 0), (2, 1), (1, 1), (1, 2), (0, 1), (3, 1))
-        flags = ("U", "R", "F", "D", "L", "B")
 
-        for i in range(6):
-            squares[colors[i]] = [[0 for col in range(3)]for row in range(3)]
-            x = 3 * offsets[i][0] * self.square_width + self.padding // 2
-            y = 3 * offsets[i][1] * self.square_width + self.padding // 2
-            anchors[colors[i]] = (x, y, flags[i])
-
-        return squares, anchors
+        for i, (color, flag) in enumerate(self.colors.items()):
+            self.faces[color] = [0 for g in range(9)]
+            x = 3 * offsets[i][0] * self.grid_width + self.padding // 2
+            y = 3 * offsets[i][1] * self.grid_width + self.padding // 2
+            anchors[color] = (x, y, flag)
+        
+        return anchors
 
     # draw 3 x 3 small squares on 6 faces
-    def drawSquares(self, anchors):
-        # print(anchors)
-        w = self.square_width
-        for face in anchors:
-            x, y, flag = anchors[face]
-            for row in range(3):
-                for col in range(3):
-                    self.squares[face][row][col] = self.drawSquare(x + col * w, y + row * w)
+    def draw_faces(self, faces_pos):
+        
+        w = self.grid_width
+        for face in faces_pos:
+            x, y, flag = faces_pos[face]
+            for grid in range(9):
+                row = grid // 3
+                col = grid % 3
+                self.faces[face][grid] = self.drawSquare(x + col * w, y + row * w)
 
             # set center color of every face
-            self.itemconfig(self.squares[face][1][1], fill=face)
+            self.itemconfig(self.faces[face][4], fill=face)
             self.create_text(x + w * 1.5, y + w * 1.5, font=("", 14), text=flag)
 
-    # draw square_width x square_width square on (x, y)
+    # draw grid_width x grid_width square on (x, y)
     def drawSquare(self, x, y):
-        w = self.square_width
+        w = self.grid_width
         return self.create_rectangle(x, y, x + w, y + w, fill="whitesmoke", outline="gray")
 
     # display a face
-    def showResult(self, result):
+    def show_face(self, result):
 
-        face = result[1][1]
-        try:
-            for i in range(3):
-                for j in range(3):
-                    self.itemconfig(self.squares[face][i][j], fill=result[i][j])
-        except:
-            pass
+        face = result[4]
+        
+        for i in range(9):
+            self.itemconfig(self.faces[face][i], fill=result[i])
 
+
+    def definition_string(self):
+
+        '''
+            get definition string
+            
+            A cube definition string "UBL..." means for example: 
+                In position U1 we have the U-color, in position U2 we have the B-color, 
+                in position U3 we have the L color etc. according to the order 
+                U1, U2, U3, U4, U5, U6, U7, U8, U9, R1, R2, R3, R4, R5, R6, R7, R8, R9, 
+                F1, F2, F3, F4, F5, F6, F7, F8, F9, D1, D2, D3, D4, D5, D6, D7, D8, D9, 
+                L1, L2, L3, L4, L5, L6, L7, L8, L9, B1, B2, B3, B4, B5, B6, B7, B8, B9
+            
+            eg: LUFRUDDBDLFULRUDBRFLFFFDDRLRUBFDDRDBBBRLLRULBLFUBBUURF
+
+            reference: https://pypi.org/project/kociemba/
+        '''
+
+        s = ''
+        for color, grids in self.faces.items():
+            for grid in grids:
+                c = self.itemcget(grid, "fill")
+                s += self.colors.get(c, '-')
+        
+        return s
 
 def test():
 
