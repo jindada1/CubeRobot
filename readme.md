@@ -49,11 +49,16 @@
   
   - [x] CameraCanvas：摄像头视频展示面板，用于**主控程序**
 
-- [x] 颜色数据采集与调试工具的开发
+- [x] [颜色数据采集与调试工具](https://github.com/jindada1/CubeRobot/blob/master/guiconfig.py)的开发
+
+  ```
+  pip install -r requirements.txt
+  python3 guiconfig.py
+  ```
 
 - [ ] 主控程序的开发
 
-  - [x] 计算机视觉模块：魔方颜色块的识别
+  - [x] [计算机视觉模块](https://github.com/jindada1/CubeRobot/blob/master/cube_vision.py)：魔方颜色块的识别
 
   - [ ] 魔方求解模块
 
