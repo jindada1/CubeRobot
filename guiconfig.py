@@ -28,13 +28,13 @@ class Configutator(Window):
         self.hsv_mask_range = None
 
         # status text
-        self.status_var = StringVar(self)
+        self.status_var = StringVar()
         # video button text
         self.video_texts = ['开启摄像头', '关闭摄像头']
-        self.video_btn_var = StringVar(self, value=self.video_texts[0])
+        self.video_btn_var = StringVar(value=self.video_texts[0])
         # scan button text
         self.scan_texts = ['扫描魔方', '停止扫描']
-        self.scan_btn_var = StringVar(self, value=self.scan_texts[0])
+        self.scan_btn_var = StringVar(value=self.scan_texts[0])
 
         # create weigets
         self.init_ui()
@@ -46,7 +46,7 @@ class Configutator(Window):
 
     def init_ui(self):
 
-        Top = Frame(self)
+        Top = Frame(self.window)
         Top.pack(side=TOP, fill=X, pady=st.L_PADDING)
 
         Left = Frame(Top)
@@ -88,7 +88,7 @@ class Configutator(Window):
         self.sample_adjuster = SampleAdjuster(Adjuster, adjusting=self.resample, save=st.store)
         self.sample_adjuster.pack(fill=BOTH, expand=True)
 
-        Bottom = Frame(self, bg='white')
+        Bottom = Frame(self.window, bg='white')
         Bottom.pack(side=BOTTOM, fill=X)
         Label(Bottom, textvariable=self.status_var, bg='white').pack(side=LEFT, padx=st.L_PADDING)
 

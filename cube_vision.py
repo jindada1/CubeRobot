@@ -214,7 +214,8 @@ def sample(image):
         
         face.append(grid)
 
-    return face, image
+    x, y, w = setting.sample
+    return face, image[y:y+3*w, x:x+3*w]
 
 
 def manual_find(image):

@@ -15,6 +15,8 @@ except:
 import cv2
 from tkinter import Canvas, NW
 from PIL import Image, ImageTk
+from threading import Thread
+from time import sleep
 
 class ViewCanvas(Canvas):
 
@@ -29,6 +31,9 @@ class ViewCanvas(Canvas):
         # Open the camera, default 0 is the first camera device on you computer
         self.camera = Camera(w=self.width, h=self.height)
         self.picture = None
+
+        # image
+        self.frame = None
 
         # 0:nothing, 1:camera, 2:picture
         self.Mode = 0
@@ -58,10 +63,14 @@ class ViewCanvas(Canvas):
         if frame is None:
             return
 
+        # delete last frame to save memory
+        self.delete(self.frame)
+
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         # must have 'self', otherwise photo will not be shown
         self.photo = ImageTk.PhotoImage(image=Image.fromarray(rgb))
-        self.create_image(0, 0, image=self.photo, anchor=NW)
+        self.frame = self.create_image(0, 0, image=self.photo, anchor=NW)
+
 
     def addpic(self, filepath):
         if not filepath:
@@ -102,20 +111,111 @@ class ViewCanvas(Canvas):
 
 class CameraCanvas(Canvas):
 
-    def __init__(self, parent, w=200, h=200):
+    def __init__(self, parent, w=640, h=480):
 
         Canvas.__init__(self, master=parent, width=w, height=h, bg='white', bd=0, highlightthickness=0)
 
-    # 设置 frame 在底层
+        self.backim = None
+        
+        self.width  = w
+        self.height = h
+        
+        self.mask_padding = (10, 10)
+
+        self.maskup()
+        self.start_animation()
+
+    # mask on top layer
+    def maskup(self, color='green'):
+
+        x1, y1 = self.mask_padding
+        x2 = self.width - x1
+        y2 = self.height - y1
+        w = self.width // 3
+        h = self.height // 3
+
+        self.line = ImageTk.PhotoImage(self.gradient_line(x1, y1))
+        self.scanline = self.create_image(x1, y1, image=self.line, anchor='nw')
+
+        self.create_line(x1, y1, x1 + w, y1, width=3, fill=color)
+        self.create_line(x1, y1, x1, y1 + h, width=3, fill=color)
+
+        self.create_line(x2, y1, x2 - w, y1, width=3, fill=color)
+        self.create_line(x2, y1, x2, y1 + h, width=3, fill=color)
+
+        self.create_line(x1, y2, x1 + w, y2, width=3, fill=color)
+        self.create_line(x1, y2, x1, y2 - h, width=3, fill=color)
+
+        self.create_line(x2, y2, x2 - w, y2, width=3, fill=color)
+        self.create_line(x2, y2, x2, y2 - h, width=3, fill=color)
+
+    def gradient_line(self, x1, y1):
+        
+        max_alpha = 120
+        h = self.height - y1 * 2
+        w  = 5
+
+        alpha_gradient = Image.new('L', (1, h), color=0xFF)
+        
+        for y in range(h):
+            a = max_alpha - int(max_alpha * ((y - h/2) / (h/2)) ** 2)
+            if a > 0:
+                alpha_gradient.putpixel((0, y), a)
+            else:
+                alpha_gradient.putpixel((0, y), 0)
+
+        alpha = alpha_gradient.resize((w, h))
+
+        line = Image.new('RGBA', (w, h), color="green")
+        line.putalpha(alpha)
+
+        return line
+    
+    def start_animation(self):
+
+        self.th = Thread(target=self.aniloop)
+        # protect thread
+        self.th.setDaemon(True)
+        self.th.start()
+
+    def aniloop(self):
+        
+        start, y = self.mask_padding
+        end = self.width - start
+        step = 1
+        x = start
+
+        while True:
+            x += step
+
+            if x > end or x < start:
+                step = -step
+
+            self.coords(self.scanline, x, y)
+
+            sleep(0.006)
+
+    # frame in bottom layer
     def setframe(self, frame):
         if frame is None:
             return
 
+        # delete last image to save memory
+        self.delete(self.backim)
+
+        # resize frame to fit screen
+        frame = cv2.resize(frame, (self.width, self.height), interpolation = cv2.INTER_AREA)
+
+        # correct color space
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
         # must have 'self', otherwise photo will not be shown
         self.photo = ImageTk.PhotoImage(image=Image.fromarray(rgb))
-        self.create_image(0, 0, image=self.photo, anchor=NW)
+        self.backim = self.create_image(0, 0, image=self.photo, anchor=NW)
 
+        # set to bottom layer
+        self.tag_lower(self.backim)
+    
 
 class CubeFloorPlan(Canvas):
     '''
@@ -185,13 +285,22 @@ class CubeFloorPlan(Canvas):
             pass
 
 
-if __name__ == "__main__":
+def test():
 
     from tkinter import Tk
 
     window = Tk()
-    CubeFloorPlan(window).pack()
-    # camera = CameraCanvas(window)
+    # CubeFloorPlan(window).pack()
+    # camera = ViewCanvas(window)
     # camera.pack()
     # camera.openCamera(2)
+
+    canvas = CameraCanvas(window, w=300, h=300)
+    canvas.pack()
+
     window.mainloop()
+
+
+if __name__ == "__main__":
+
+    test()

@@ -1,22 +1,22 @@
 
 from tkinter import Tk
 
-class Window(Tk):
+class Window():
     
-    def __init__(self, title='window', control=False):
-
-        Tk.__init__(self, title)
+    def __init__(self, title=None):
+        
+        self.window = Tk(title)
 
         self.update_delay = 33
         # update_func will be called in update
         self.update_func = None
 
     def run(self):
-        
+
         # update will be automatically called every {update_delay} milliseconds
         self.__update()
 
-        self.mainloop()
+        self.window.mainloop()
 
     def __update(self):
 
@@ -26,5 +26,5 @@ class Window(Tk):
         else:
             print('update')
 
-        self.after(self.update_delay, self.__update)
+        self.window.after(self.update_delay, self.__update)
 
