@@ -1,14 +1,13 @@
 
 import setting
 from tkinter import *
-from components import Window, Camera, CameraCanvas
+from components import *
 import cube_vision as vision
 from collections import Counter
 
 class Controller(Window):
     
     def __init__(self, title=None):
-        
         Window.__init__(self, title)
 
         self.initui()
@@ -18,7 +17,8 @@ class Controller(Window):
         # candidate color of every grid
         self.grids = [Counter() for i in range(9)]
 
-        self.id = 50
+        self.SAMPLE_FRAMES = 50
+        self.id = 0
     
     def initui(self):
 
@@ -27,21 +27,38 @@ class Controller(Window):
 
         self.canvas = CameraCanvas(self.window, w=300, h=300)
         self.canvas.pack()
+
+        HoverButton(self.window, text='识别此面', command=self.getcolor).pack(fill=X)
     
     def update(self):
 
         frame = self.camera.frame()
         face, image = vision.sample(frame)
-        self.canvas.setframe(image)
 
-        if self.id > 0:
+        self.canvas.setframe(image)
+        self.analyse(face)
+
+    def analyse(self, face):
+        
+        if not self.id:
+            return
+
+        if self.id > 1:
             self.id -= 1
             for i, grid in enumerate(face):
                 self.grids[i] += Counter(grid)
         
-        elif self.id == 0:
-            self.id = -1
-            print(self.grids)
+        else:
+            self.id = 0
+            face = list(map(lambda C: C.most_common()[0][0], self.grids))
+            print([face[:3], face[3:6], face[6:9]])
+    
+    def getcolor(self):
+
+        for i in range(9):
+            self.grids[i] = Counter()
+
+        self.id = self.SAMPLE_FRAMES
 
 if __name__ == "__main__":
 

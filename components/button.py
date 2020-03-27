@@ -10,20 +10,21 @@ class HoverButton(Button):
             def do():
                 click(params)
 
-            Button.__init__(self, master=parent, bg=bg, activebackground="whitesmoke", command=do, **kw)
+            Button.__init__(self, master=parent, bg=bg, command=do, **kw)
 
         else:
-            Button.__init__(self, master=parent, bg=bg, activebackground="whitesmoke", **kw)
+            Button.__init__(self, master=parent, bg=bg, **kw)
 
         self.hover = hover
         self.background = bg
         self.bind("<Enter>", self.on_enter)
         self.bind("<Leave>", self.on_leave)
-        self.config(border='0')
+        self.config(bd=0)
+        self.config(cursor='hand2')
+        self.config(activebackground='whitesmoke')
 
     def on_enter(self, e):
         self['background'] = self.hover
-        self['cursor'] = 'hand2'
 
     def on_leave(self, e):
         self['background'] = self.background
