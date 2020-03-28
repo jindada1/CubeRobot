@@ -17,11 +17,13 @@
 
 ## requirements
 
-+ python3
-+ matplotlib  
+python version: python3.5.x(3.5.4)
+
++ matplotlib
 + numpy
 + opencv-python 
-+ pillow 
++ pillow
++ pybluez
 
 
 

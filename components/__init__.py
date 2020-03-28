@@ -1,23 +1,22 @@
 
-from __future__ import barry_as_FLUFL
-
 from .video import Camera
 from .button import HoverButton
+from .window import Window, BlueTooth
 from .frame import HSVAdjuster, SampleAdjuster, Console
 from .canvas import ViewCanvas, CubeFloorPlan, CameraCanvas
 
-from .window import Window
 
 __all__ = [
     'Camera',
-    'HoverButton',
-    'ViewCanvas',
-    'CubeFloorPlan',
-    'HSVAdjuster',
-    'SampleAdjuster',
-    'Console',
     'Window',
-    'CameraCanvas'
+    'Console',
+    'BlueTooth',
+    'ViewCanvas',
+    'HoverButton',
+    'HSVAdjuster',
+    'CameraCanvas',
+    'CubeFloorPlan',
+    'SampleAdjuster'
 ]
 
 __version__ = '1.0'

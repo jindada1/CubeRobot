@@ -428,29 +428,26 @@ class Console(Frame):
 
     def initwidgets(self):
         
-        D = Frame(self, height=10)
-        D.pack(fill=BOTH, expand=True)
-        self.content = C = Text(D, width=20)
+        Left = Frame(self, height=10)
+        Left.pack(side=LEFT, fill=BOTH, expand=True)
 
+        self.content = C = Text(Left, width=20, height=3)
         C.tag_config('index',foreground='green', background="whitesmoke" )
         C.tag_config('warning',foreground='black', background="lemonchiffon" )
         C.bind("<Key>", lambda e: self.__ctrl(e))
+        C.pack(fill=BOTH, expand=True)
 
-        C.pack(side=LEFT, fill=BOTH, expand=True)
+        HoverButton(Left, text='清空控制台', command=self.clear).pack(side=LEFT, fill=X, expand=True)
 
-        S = Scrollbar(D)
+        if self.debug:
+            HoverButton(Left, text='插入', command=self.__addline).pack(side=LEFT, fill=X, expand=True)
+
+        S = Scrollbar(self)
         S.pack(side=RIGHT, fill=Y)
 
         S.config(command=C.yview)
         C.config(yscrollcommand=S.set)
 
-        Frame(self, height=10).pack(fill=X)
-        HoverButton(self, text='清空控制台', command=self.clear).pack(side=LEFT, fill=X, expand=True)
-
-        if self.debug:
-            HoverButton(self, text='插入', command=self.__addline).pack(side=LEFT, fill=X, expand=True)
-
-        Frame(self, width=16).pack(side=LEFT)
 
     def __ctrl(self, event):
         if(12==event.state and event.keysym=='c' ):

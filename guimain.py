@@ -12,27 +12,51 @@ class Controller(Window):
 
         self.initui()
 
+        # update_func will be executed in loop
         self.update_func = self.update
 
         # candidate color of every grid
         self.grids = [Counter() for i in range(9)]
 
-        self.SAMPLE_FRAMES = 50
-        self.id = 0
+        # number of a sample action
+        self.SAMPLE_FRAMES = 10
+        self.sample_id = 0
+
+        # bluetooth window singleton
+        self.bluetooth_win = None
     
     def initui(self):
 
         self.camera = Camera()
         self.camera.open()
 
-        self.canvas = CameraCanvas(self.window, w=300, h=300)
-        self.canvas.pack()
+        Top = Frame(self.window)
+        Top.pack(fill=BOTH, expand=True)
+        Left = Frame(Top)
+        Left.pack(side=LEFT, fill=BOTH, expand=True)
+        self.canvas = CameraCanvas(Left, w=300, h=300)
+        self.canvas.pack(expand=True)
 
-        HoverButton(self.window, text='识别此面', command=self.getcolor).pack(fill=X)
+        Control = Frame(Left)
+        Control.pack(side=BOTTOM, fill=X)
+        HoverButton(Control, text='识别此面', command=self.getcolor).pack(fill=X)
+        HoverButton(Control, text='蓝牙', command=self.open_bluetooth).pack(fill=X)
 
-        self.floor = CubeFloorPlan(self.window)
+        Right = Frame(Top)
+        Right.pack(side=RIGHT, fill=Y)
+        self.floor = CubeFloorPlan(Right)
         self.floor.pack()
-    
+
+        self.console = Console(Right)
+        self.console.pack(side=BOTTOM, fill=BOTH, expand=True)
+
+    def open_bluetooth(self):
+        
+        if self.bluetooth_win is None:
+            self.bluetooth_win = BlueTooth(self.window)
+        
+        self.bluetooth_win.open()
+
     def update(self):
 
         frame = self.camera.frame()
@@ -43,16 +67,16 @@ class Controller(Window):
 
     def analyse(self, face):
         
-        if not self.id:
+        if not self.sample_id:
             return
 
-        if self.id > 1:
-            self.id -= 1
+        if self.sample_id > 1:
+            self.sample_id -= 1
             for i, grid in enumerate(face):
                 self.grids[i] += Counter(grid)
         
         else:
-            self.id = 0
+            self.sample_id = 0
             face = list(map(lambda C: C.most_common()[0][0], self.grids))
             self.floor.show_face(face)
             s = self.floor.definition_string()
@@ -60,13 +84,13 @@ class Controller(Window):
     
     def getcolor(self):
         
-        if self.id:
+        if self.sample_id:
             return
 
         for i in range(9):
             self.grids[i] = Counter()
 
-        self.id = self.SAMPLE_FRAMES
+        self.sample_id = self.SAMPLE_FRAMES
 
 if __name__ == "__main__":
 

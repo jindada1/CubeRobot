@@ -83,7 +83,7 @@ def init():
                 v_ranges[:] = list(map(lambda l: tuple(l), cfg['v_ranges']))
 
     except:
-        print('something went wrong in', config)
+        print('something went wrong in', __config_file)
 
 
 def store():
