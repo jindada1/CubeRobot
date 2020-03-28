@@ -1,6 +1,5 @@
 
 import json
-L_PADDING = 10
 
 bgr_colors = {
     "black"  :(  0,   0,   0),  # Black
@@ -15,9 +14,6 @@ bgr_colors = {
     "error"  :( 30, 105, 210),  # No matched color, error
 }
 
-# global settings in config file
-global hsv_ranges, sample, h_ranges, s_divide, v_ranges
-
 hsv_ranges = {
     'Red'   : ([156,  43,  46], [180, 255, 255]), # Red
     'red'   : ([  0,  43,  46], [ 13, 255, 255]), # Red
@@ -31,59 +27,57 @@ hsv_ranges = {
 # x, y, width: left-top coordinate (x, y) of sample area, (width) of grid
 sample = [20, 20, 64]       
 
-h_ranges = [
-    ('red'   ,  10),
-    ('orange',  25),
-    ('yellow',  34),
-    ('green' ,  77),
-    ('blue'  , 124),
-    ('Red'   , 180)
+hues = [
+    ['red'   ,  10],
+    ['orange',  25],
+    ['yellow',  34],
+    ['green' ,  77],
+    ['blue'  , 124],
+    ['Red'   , 180]
 ]
 
-s_divide = 43
+saturation = 43
 
-v_ranges = [
-    ('black',  46),
-    ('white', 255)
+values = [
+    ['black',  46],
+    ['white', 255]
 ]
 
 
 __config_file = 'config.json'
 __config_format = {
     'hsv_ranges': {},
-    'h_ranges':   [],
-    's_divide':   43,
-    'v_ranges':   [],
+    'hues':       [],
+    'saturation': 43,
+    'values':     [],
     'sample':     []
 }
 
-def init():
-    try:
-        with open(__config_file, 'r') as f:
-            cfg = json.loads(f.read())
+def load():
+    with open(__config_file, 'r') as f:
+        cfg = json.loads(f.read())
 
-            # load hsv range of colors
-            for color, _range in cfg['hsv_ranges'].items():
-                hsv_ranges[color] = (_range['lower'], _range['upper'])
+        # load hsv range of colors
+        for color, _range in cfg['hsv_ranges'].items():
+            hsv_ranges[color] = (_range['lower'], _range['upper'])
 
-            # load sample points
-            if cfg['sample']:
-                sample[:] = cfg['sample']
+        # load sample points
+        if cfg['sample']:
+            sample[:] = cfg['sample']
 
-            # load h ranges red, orange, yellow, green, blue
-            if cfg['h_ranges']:
-                h_ranges[:] = list(map(lambda l: tuple(l), cfg['h_ranges']))
+        # load h ranges red, orange, yellow, green, blue
+        if cfg['hues']:
+            hues[:] = cfg['hues']
 
-            # load s divide value
-            if cfg['s_divide']:
-                s_divide = cfg['s_divide']
+        # load s divide value
+        if cfg['saturation']:
+            global saturation
+            saturation = cfg['saturation']
 
-            # load v ranges for black, gray, white
-            if cfg['v_ranges']:
-                v_ranges[:] = list(map(lambda l: tuple(l), cfg['v_ranges']))
+        # load v ranges for black, gray, white
+        if cfg['values']:
+            values[:] = cfg['values']
 
-    except:
-        print('something went wrong in', __config_file)
 
 
 def store():
@@ -95,10 +89,9 @@ def store():
         }
 
     __config_format['sample'] = sample
-    __config_format['s_divide'] = s_divide
-
-    __config_format['h_ranges'] = list(map(lambda t: list(t), h_ranges))
-    __config_format['v_ranges'] = list(map(lambda t: list(t), v_ranges))
+    __config_format['saturation'] = saturation
+    __config_format['hues'] = hues
+    __config_format['values'] = values
 
     with open(__config_file, 'w') as outfile:
         json.dump(__config_format, outfile)

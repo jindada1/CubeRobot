@@ -21,11 +21,11 @@ class HSVAdjuster(Frame):
 
         Frame.__init__(self, master=parent, pady=padding_y)
 
-        self.hsv_space = {
-            "h": (0, 180),
-            "s": (0, 255),
-            "v": (0, 255)
-        }
+        self.hsv_space = [
+            ("h", 0, 180),
+            ("s", 0, 255),
+            ("v", 0, 255)
+        ]
 
         # bind event, callback when slidding any Scale
         self.adjusting = adjusting
@@ -101,7 +101,7 @@ class HSVAdjuster(Frame):
         Label(col2, text="lower").pack()
         Label(col3, text="upper").pack()
 
-        for i, (prop, (l, r)) in enumerate(self.hsv_space.items()):
+        for i, (prop, l, r) in enumerate(self.hsv_space):
             Label(col1, text=prop).pack(fill=Y, expand=True)
 
             Scale(col2, from_=l, to=r, variable=self.lower_vars[i], tickinterval=r, command=self.sliding, \
@@ -271,13 +271,13 @@ class SampleAdjuster(Frame):
 
         col1 = Frame(dp)
         col1.pack(side=LEFT, fill=BOTH, expand=True)
-        for color, var in self.hrs:
+        for color, var in self.hues:
             mySpinBox(col1, title=color, var=var, change=self.color_hsv_changed).pack(fill=X)
 
         col2 = Frame(dp)
         col2.pack(side=LEFT, fill=BOTH, expand=True)
-        mySpinBox(col2, title='sline', var=self.sd, range_=(0, 255), change=self.color_hsv_changed).pack(fill=X)
-        for color, var in self.vrs:
+        mySpinBox(col2, title='sline', var=self.saturation, range_=(0, 255), change=self.color_hsv_changed).pack(fill=X)
+        for color, var in self.values:
             mySpinBox(col2, title=color, var=var, range_=(0, 255), change=self.color_hsv_changed).pack(fill=X)
 
         return dp
@@ -372,10 +372,10 @@ class SampleAdjuster(Frame):
 
         self.bigscreen = bigscreen
 
-        hrs, sd, vrs = color_hsv
-        self.hrs = list(map(lambda t: (t[0], IntVar(value=t[1])), hrs))
-        self.sd = IntVar(value=sd)
-        self.vrs = list(map(lambda t: (t[0], IntVar(value=t[1])), vrs))
+        hues, saturation, values = color_hsv
+        self.hues = list(map(lambda t: (t[0], IntVar(value=t[1])), hues))
+        self.saturation = IntVar(value=saturation)
+        self.values = list(map(lambda t: (t[0], IntVar(value=t[1])), values))
 
         self.init_data_panel()
 
@@ -386,13 +386,13 @@ class SampleAdjuster(Frame):
         self.refresh()
 
     def color_hsv_changed(self, color, val):
-        hrs = list(map(lambda t: (t[0], t[1].get()), self.hrs))
-        sd = self.sd.get()
-        vrs = list(map(lambda t: (t[0], t[1].get()), self.vrs))
+        hues = list(map(lambda t: [t[0], t[1].get()], self.hues))
+        saturation = self.saturation.get()
+        values = list(map(lambda t: [t[0], t[1].get()], self.values))
         if self.adjusting:
             self.adjusting(
                 'hsv',
-                (hrs, sd, vrs)
+                (hues, saturation, values)
             )
 
     def save_setting(self):

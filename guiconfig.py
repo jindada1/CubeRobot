@@ -9,6 +9,8 @@ from components import *
 from cube_vision import hsv_range_mask, scan_cube, count_sample_points
 import setting as st
 
+PADDING = 10
+
 class Configutator(Window):
     '''
     gui window for configuring data used for cube vision (config.json)
@@ -47,13 +49,13 @@ class Configutator(Window):
     def init_ui(self):
 
         Top = Frame(self.window)
-        Top.pack(side=TOP, fill=X, pady=st.L_PADDING)
+        Top.pack(side=TOP, fill=X, pady=PADDING)
 
         Left = Frame(Top)
-        Left.pack(side=LEFT, fill=Y, padx=st.L_PADDING)
+        Left.pack(side=LEFT, fill=Y, padx=PADDING)
         self.view = ViewCanvas(Left)
         self.view.pack()
-        Frame(Left, height=st.L_PADDING).pack(fill=X)
+        Frame(Left, height=PADDING).pack(fill=X)
         mediaMode = Frame(Left)
         mediaMode.pack(fill=X)
         for text, mode in self.scan_modes:
@@ -61,7 +63,7 @@ class Configutator(Window):
                 .pack(side=LEFT)
 
         Right = Frame(Top)
-        Right.pack(side=RIGHT, fill=Y, padx=st.L_PADDING)
+        Right.pack(side=RIGHT, fill=Y, padx=PADDING)
 
         RightTop = Frame(Right)
         RightTop.pack(side=TOP)
@@ -90,16 +92,16 @@ class Configutator(Window):
 
         Bottom = Frame(self.window, bg='white')
         Bottom.pack(side=BOTTOM, fill=X)
-        Label(Bottom, textvariable=self.status_var, bg='white').pack(side=LEFT, padx=st.L_PADDING)
+        Label(Bottom, textvariable=self.status_var, bg='white').pack(side=LEFT, padx=PADDING)
 
     def load_setting(self):
         # initialize setting
-        st.init()
+        st.load()
 
         self.hsv_adjuster.set_hsv_range(st.hsv_ranges)
 
         width_height = (self.view.width, self.view.height)
-        color_hsv = (st.h_ranges, st.s_divide, st.v_ranges)
+        color_hsv = (st.hues, st.saturation, st.values)
         self.sample_adjuster.set_data(st.sample, width_height, color_hsv)
 
         self.status_var.set('已加载配置文件')
@@ -126,7 +128,7 @@ class Configutator(Window):
             count_sample_points(data)
         
         elif t == 'hsv':
-            st.h_ranges, st.s_divide, st.v_ranges = data
+            st.hues, st.saturation, st.values = data
 
     def toggle_camera(self):
 

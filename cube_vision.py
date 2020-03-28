@@ -187,15 +187,15 @@ def count_sample_points(new_data=None):
 def get_color(hsv_value):
     h, s, v = hsv_value
     
-    if s < setting.s_divide:
+    if s < setting.saturation:
         # black, gray, white
-        for color, value in setting.v_ranges:
+        for color, value in setting.values:
             if v <= value:
                 return color
 
     else:
         # red, orange, yellow, green, blue
-        for color, value in setting.h_ranges:
+        for color, value in setting.hues:
             if h <= value:
                 return color
     
@@ -296,7 +296,7 @@ def _test_sort_coordinate():
 
 
 def _test_scan_cube():
-    # setting.init()
+    # setting.load()
     image = cv2.imread('tests/in/Cube_1.png')
     # colors, face = scan_cube(image, 'm')
     colors, face = scan_cube(image, 'a')
