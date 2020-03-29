@@ -296,7 +296,7 @@ def _test_sort_coordinate():
 
 
 def _test_scan_cube():
-    # setting.load()
+    
     image = cv2.imread('tests/in/Cube_1.png')
     # colors, face = scan_cube(image, 'm')
     colors, face = scan_cube(image, 'a')

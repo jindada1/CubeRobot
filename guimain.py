@@ -94,6 +94,4 @@ class Controller(Window):
 
 if __name__ == "__main__":
 
-    setting.load()
-
     Controller("Rubik's Cube Robot").run()

@@ -124,10 +124,10 @@ class HSVAdjuster(Frame):
         self.adjustPanel.pack(fill=BOTH, expand=True)
 
         if self.toggle:
-            self.toggle((
+            self.toggle([
                 list(map(lambda var: var.get(), self.lower_vars)),
                 list(map(lambda var: var.get(), self.upper_vars))
-            ))
+            ])
 
     def visualize(self):
     
@@ -139,10 +139,10 @@ class HSVAdjuster(Frame):
     def sliding(self, e):
 
         if self.adjusting:
-            self.adjusting((
+            self.adjusting([
                 list(map(lambda var: var.get(), self.lower_vars)),
                 list(map(lambda var: var.get(), self.upper_vars))
-            ))
+            ])
         else:
             print('test', 'sliding', e)
 
@@ -156,7 +156,7 @@ class HSVAdjuster(Frame):
             self.hsv_range_vars[color][0].set(str(lower))
             self.hsv_range_vars[color][1].set(str(upper))
 
-            self.save((color, (lower, upper)))
+            self.save((color, [lower, upper]))
 
         else:
             print('test', 'click save')

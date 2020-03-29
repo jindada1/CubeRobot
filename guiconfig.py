@@ -95,8 +95,6 @@ class Configutator(Window):
         Label(Bottom, textvariable=self.status_var, bg='white').pack(side=LEFT, padx=PADDING)
 
     def load_setting(self):
-        # initialize setting
-        st.load()
 
         self.hsv_adjuster.set_hsv_range(st.hsv_ranges)
 
