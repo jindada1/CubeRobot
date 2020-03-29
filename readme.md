@@ -53,6 +53,13 @@ python version: python3.5.x(3.5.4)
 
 - [x] [颜色数据采集与调试工具](https://github.com/jindada1/CubeRobot/blob/master/guiconfig.py)的开发
 
+  - [x] [数据设置与加载模块](https://github.com/jindada1/CubeRobot/tree/master/setting)
+  - [x] [计算机视觉模块](https://github.com/jindada1/CubeRobot/blob/master/vision.py)：魔方定位与颜色块的识别
+    - [x] 全局二值化色块定位
+    - [x] 形态学处理与魔方定位
+    - [x] 手动定位，固定点采样
+    - [x] 颜色识别
+
   ```
   pip install -r requirements.txt
   python3 guiconfig.py
@@ -60,7 +67,7 @@ python version: python3.5.x(3.5.4)
 
 - [ ] 主控程序的开发
 
-  - [x] [计算机视觉模块](https://github.com/jindada1/CubeRobot/blob/master/vision.py)：魔方颜色块的识别
+  - [x] [计算机视觉模块](https://github.com/jindada1/CubeRobot/blob/master/vision.py)：魔方定位与颜色块的识别
 
   - [ ] 魔方求解模块
 
