@@ -2,7 +2,7 @@
 import setting
 from tkinter import *
 from components import *
-import cube_vision as vision
+import vision as vision
 from collections import Counter
 
 class Controller(Window):

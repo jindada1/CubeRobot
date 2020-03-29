@@ -60,7 +60,7 @@ python version: python3.5.x(3.5.4)
 
 - [ ] 主控程序的开发
 
-  - [x] [计算机视觉模块](https://github.com/jindada1/CubeRobot/blob/master/cube_vision.py)：魔方颜色块的识别
+  - [x] [计算机视觉模块](https://github.com/jindada1/CubeRobot/blob/master/vision.py)：魔方颜色块的识别
 
   - [ ] 魔方求解模块
 

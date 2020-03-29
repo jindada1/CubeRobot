@@ -6,7 +6,7 @@
 from tkinter import filedialog
 from tkinter import *
 from components import *
-from cube_vision import hsv_range_mask, scan_cube, count_sample_points
+from vision import hsv_range_mask, scan_cube, count_sample_points
 import setting as st
 
 PADDING = 10
