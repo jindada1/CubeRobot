@@ -1,8 +1,14 @@
+'''
+    main application of this project
 
+    author: kris
+    
+'''
+
+import vision
 import setting
 from tkinter import *
 from components import *
-import vision as vision
 from collections import Counter
 
 class Controller(Window):
