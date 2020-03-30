@@ -1,5 +1,5 @@
 
-
+# bgr_colors = { color: (b, g, r), }
 bgr_colors = {
     "black"  :(  0,   0,   0),  # Black
     "gray"   :(128, 128, 128),  # Gray
@@ -13,6 +13,7 @@ bgr_colors = {
     "error"  :( 30, 105, 210),  # No matched color, error
 }
 
+# hsv_ranges = { color: [hsv_lower, hsv_upper], }
 hsv_ranges = {
     'Red'   : [[156,  43,  46], [180, 255, 255]], # Red
     'red'   : [[  0,  43,  46], [ 13, 255, 255]], # Red
@@ -23,9 +24,41 @@ hsv_ranges = {
     'green' : [[ 35,  43,  46], [ 77, 255, 255]], # Green
 }
 
-# x, y, width: left-top coordinate (x, y) of sample area, (width) of grid
-sample = [20, 20, 64]       
+'''
+    x, y, w: left-top coordinate (x, y) of sample area, (width) of grid
 
+    (0,0)
+        +-x-|
+        |   |
+        y   |
+        |   |     |--w--|  
+        ----+-----+-----+-----+
+            |     |     |     |
+            +-----+-----+-----+
+            |     |     |     |
+            +-----+-----+-----+
+            |     |     |     |
+            +-----+-----+-----+
+            sample area
+'''
+sample = [20, 20, 64]
+
+
+'''
+    if s < saturation:
+        color must belongs to [black, gray, white]
+        search in values
+    else:
+        color belongs to [red, orange, yellow, green, blue, Red]
+        search in hues
+'''
+saturation = 43
+
+'''
+    if 0 < hue <= 10, color is red
+    elif 10 < hue <= 25, color is orange
+    ...
+'''
 hues = [
     ['red'   ,  10],
     ['orange',  25],
@@ -35,8 +68,10 @@ hues = [
     ['Red'   , 180]
 ]
 
-saturation = 43
-
+'''
+    if 0 < value <= 46, color is black
+    elif 46 < value <= 25, color is white
+'''
 values = [
     ['black',  46],
     ['white', 255]

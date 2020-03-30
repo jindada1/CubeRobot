@@ -46,6 +46,7 @@ class Configutator(Window):
         # update_func will be called in update
         self.update_func = self.refresh
 
+    # create widgets
     def init_ui(self):
 
         Top = Frame(self.window)
@@ -94,6 +95,7 @@ class Configutator(Window):
         Bottom.pack(side=BOTTOM, fill=X)
         Label(Bottom, textvariable=self.status_var, bg='white').pack(side=LEFT, padx=PADDING)
 
+    # set configuration data to components
     def load_setting(self):
 
         self.hsv_adjuster.set_hsv_range(st.hsv_ranges)
@@ -104,6 +106,7 @@ class Configutator(Window):
 
         self.status_var.set('已加载配置文件')
 
+    # mode switched between auto('a') and manual('m')
     def scan_mode_change(self):
 
         mode = self.scan_mode.get()
@@ -120,6 +123,7 @@ class Configutator(Window):
             self.sample_adjuster.pack_forget()
             self.hsv_adjuster.pack(fill=BOTH, expand=True)
 
+    # used when mode is manual
     def resample(self, t, data):
         
         if t == 'sample':
@@ -128,6 +132,7 @@ class Configutator(Window):
         elif t == 'hsv':
             st.hues, st.saturation, st.values = data
 
+    # open or close camera
     def toggle_camera(self):
 
         if self.view.Mode == 1:
@@ -140,6 +145,7 @@ class Configutator(Window):
 
         self.video_btn_var.set(self.video_texts[self.view.Mode])
 
+    # start or stop scan image
     def toggle_scan(self):
 
         if self.view.Mode == 0:
@@ -165,12 +171,14 @@ class Configutator(Window):
 
         self.scan_btn_var.set(self.scan_texts[self.scaning])
 
+    # open a static picture
     def open_photo(self):
         
         picpath = filedialog.askopenfilename()
 
         self.view.addpic(picpath)
     
+    # scan cube, and get color
     def get_cube_color(self):
         
         scan_mode = self.scan_mode.get()
@@ -185,6 +193,7 @@ class Configutator(Window):
         if result:
             self.floorplan.show_face(result)
 
+    # only show pixels with color ​​in a certain range
     def filter_hsv_color(self):
 
         frame = self.view.screen()
@@ -195,15 +204,18 @@ class Configutator(Window):
         mask = hsv_range_mask(frame, self.hsv_mask_range)
         self.refresh(mask)
 
+    # save change to config file
     def hsv_save(self, item):
 
         st.hsv_ranges[item[0]] = item[1]
         st.store()
 
+    # update value change by components
     def hsv_update(self, args):
 
         self.hsv_mask_range = args
-        
+    
+    # whether start to filter color
     def hsv_toggle(self, hsv_range):
 
         if hsv_range:

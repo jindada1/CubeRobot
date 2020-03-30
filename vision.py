@@ -30,7 +30,10 @@ import setting
 # Color threshold to find the squares
 open_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
 close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+
+# 9 grids per face, 5 sample points per grid
 sample_points = [[] for i in range(9)]
+# [(x1, y1), (x2, y2)]
 sample_border = [(0, 0),(100, 100)]
 
 
@@ -147,7 +150,9 @@ def scan_cube(image, mode) -> list:
 
 
 def sample_coordinates():
-
+    '''
+        get sample points
+    '''
     if not sample_points[0]:
         count_sample_points()
         
@@ -155,7 +160,18 @@ def sample_coordinates():
 
 
 def count_sample_points(new_data=None):
+    '''
+        Count coordinates of all sample points(9x5).
 
+        input:
+            new_data = [x, y, w] or None
+            if new_data is none, load from setting.sample
+
+        output:
+            None
+        
+        directly operating on sample_points(defined in line 35)
+    '''
     if new_data:
         setting.sample = new_data
 
@@ -184,7 +200,18 @@ def count_sample_points(new_data=None):
         ]
     
 
-def get_color(hsv_value):
+def get_color(hsv_value:np.ndarray) -> str:
+    
+    ''' 
+        Get color from hsv value.
+
+        input:
+            hsv value: [h s v]
+
+        output:
+            color
+    '''
+    
     h, s, v = hsv_value
     
     if s < setting.saturation:
@@ -202,8 +229,25 @@ def get_color(hsv_value):
     return 'error'
 
 
-def sample(image):
+def sample(image:np.ndarray) -> tuple:
+    
+    ''' 
+        Get color of sample points in image.
 
+        input:
+            image
+
+        output:
+            face: [
+                [color1, color2, ... , color5],
+                [color1, color2, ... , color5],
+                ... 9 grids ...
+                [color1, color2, ... , color5],
+            ],
+
+            image: cropped image(sample area)
+    '''
+    
     grid_samples = sample_coordinates()
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     face = []
@@ -220,9 +264,9 @@ def sample(image):
     return face, image[y:y+3*w, x:x+3*w]
 
 
-def manual_find(image):
+def manual_find(image:np.ndarray) -> tuple:
     '''
-        we directly specified the sample points for color recognition
+        Directly specified the sample points for color recognition
     '''
     grid_samples = sample_coordinates()
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -243,7 +287,7 @@ def manual_find(image):
     return face, image
 
 
-def auto_find(image):
+def auto_find(image:np.ndarray) -> tuple:
     '''
         We don't know the position of rubik's cube in image,
         so we try to filter every color and morphologyEx

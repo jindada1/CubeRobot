@@ -16,19 +16,21 @@ with open(__config_file, 'r') as f:
     if cfg['sample']:
         sample = cfg['sample']
 
-    # load h ranges red, orange, yellow, green, blue
+    # load hues red, orange, yellow, green, blue
     if cfg['hues']:
         hues = cfg['hues']
 
-    # load s divide value
+    # load saturation
     if cfg['saturation']:
         saturation = cfg['saturation']
 
-    # load v ranges for black, gray, white
+    # load values for black, white
     if cfg['values']:
         values = cfg['values']
     
-    print('load from %s' % __config_file)
+    Green = "\x1b[32m"
+    End = '\033[0m'
+    print(Green, "load '%s'" % __config_file, End)
 
 
 def store():
