@@ -73,8 +73,13 @@ python version: python3.5.x(3.5.4)
 - [ ] 主控程序的开发
 
   - [x] [计算机视觉模块](https://github.com/jindada1/CubeRobot/blob/master/vision.py)：魔方定位与颜色块的识别
+
   - [x] [魔方求解模块](https://github.com/jindada1/CubeRobot/tree/master/twophase)：[twophase](https://github.com/hkociemba/RubiksCube-TwophaseSolver)算法
+
+    - [x] [魔方模拟器](https://github.com/jindada1/CubeRobot/blob/master/emulator/emulator.html)的开发
+
   - [ ] 指令调整与优化
+
   - [ ] 蓝牙模块
 
 
