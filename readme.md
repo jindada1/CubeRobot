@@ -17,7 +17,9 @@
 
 ## requirements
 
-python version: python3.5.x(3.5.4)
+python 版本: 3.5.x
+> 本人使用的是 3.5.4，如果使用更高版本的python，则使用 pip install pybluez 安装蓝牙模块时需要有 Microsoft Visual C++ 14.0 Build Tools。[link](https://visualstudio.microsoft.com/downloads/)
+
 
 + matplotlib
 + numpy
@@ -31,7 +33,7 @@ python version: python3.5.x(3.5.4)
 
 ### 软件部分
 
-- [x] tkinter gui 组件设计与开发，[这里](https://github.com/jindada1/CubeRobot/tree/master/components)
+- [x] tkinter gui [组件](https://github.com/jindada1/CubeRobot/tree/master/components)的设计与开发
 
   - [x] Camera：基于cv2.VideoCapture 构造的摄像头管理类 
   
