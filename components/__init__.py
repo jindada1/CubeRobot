@@ -1,7 +1,7 @@
 
 from .video import Camera
 from .button import HoverButton
-from .window import Window, BlueTooth
+from .window import Window, SubWindow
 from .frame import HSVAdjuster, SampleAdjuster, Console
 from .canvas import ViewCanvas, CubeFloorPlan, CameraCanvas
 
@@ -10,7 +10,7 @@ __all__ = [
     'Camera',
     'Window',
     'Console',
-    'BlueTooth',
+    'SubWindow',
     'ViewCanvas',
     'HoverButton',
     'HSVAdjuster',

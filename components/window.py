@@ -29,7 +29,7 @@ class Window():
         self.window.after(self.update_delay, self.__update)
 
 
-class BlueTooth():
+class SubWindow():
 
     def __init__(self, parent):
 
@@ -61,5 +61,5 @@ class BlueTooth():
 if __name__ == "__main__":
     
     win = Window('test window')
-    BlueTooth(win.window).open()
+    SubWindow(win.window).open()
     win.run()
