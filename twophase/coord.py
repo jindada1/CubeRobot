@@ -156,7 +156,7 @@ def create_phase2_edgemerge_table():
 
     if not path.isfile(fname):
         cnt = 0
-        print("creating " + fname + " table...")
+        print("creating", fname)
         u_edges_plus_d_edges_to_ud_edges = ar.array('H', [0 for i in range(N_U_EDGES_PHASE2 * N_PERM_4)])
         for i in range(N_U_EDGES_PHASE2):
             c_u.set_u_edges(i)

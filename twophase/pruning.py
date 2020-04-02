@@ -54,7 +54,7 @@ def create_phase1_prun_table():
     total = defs.N_FLIPSLICE_CLASS * defs.N_TWIST
     fname = table_path("phase1_prun")
     if not path.isfile(fname):
-        print("creating " + fname + " table...")
+        print("creating", fname)
         print('This may take half an hour or even longer, depending on the hardware.')
 
         flipslice_twist_depth3 = ar.array('L', [0xffffffff] * (total // 16 + 1))
@@ -164,7 +164,7 @@ def create_phase1_prun_table():
         fh = open(fname, "wb")
         flipslice_twist_depth3.tofile(fh)
     else:
-        print("loading " + fname + " table...")
+        print("loading", fname)
         fh = open(fname, "rb")
         flipslice_twist_depth3 = ar.array('L')
         flipslice_twist_depth3.fromfile(fh, total // 16 + 1)
@@ -177,7 +177,7 @@ def create_phase2_prun_table():
     fname = table_path("phase2_prun")
     global corners_ud_edges_depth3
     if not path.isfile(fname):
-        print("creating " + fname + " table...")
+        print("creating", fname)
 
         corners_ud_edges_depth3 = ar.array('L', [0xffffffff] * (total // 16))
         # ##################### create table with the symmetries of the corners classes ################################
@@ -266,7 +266,7 @@ def create_phase2_prun_table():
         fh = open(fname, "wb")
         corners_ud_edges_depth3.tofile(fh)
     else:
-        print("loading " + fname + " table...")
+        print("loading", fname)
         fh = open(fname, "rb")
         corners_ud_edges_depth3 = ar.array('L')
         corners_ud_edges_depth3.fromfile(fh, total // 16)
@@ -280,7 +280,7 @@ def create_phase2_cornsliceprun_table():
     fname = table_path("phase2_cornsliceprun")
     global cornslice_depth
     if not path.isfile(fname):
-        print("creating " + fname + " table...")
+        print("creating", fname)
         cornslice_depth = ar.array('b', [-1] * (defs.N_CORNERS * defs.N_PERM_4))
         corners = 0  # values for solved phase 2
         slice_ = 0
@@ -308,7 +308,7 @@ def create_phase2_cornsliceprun_table():
         fh = open(fname, "wb")
         cornslice_depth.tofile(fh)
     else:
-        print("loading " + fname + " table...")
+        print("loading", fname)
         fh = open(fname, "rb")
         cornslice_depth = ar.array('b')
         cornslice_depth.fromfile(fh, defs.N_CORNERS * defs.N_PERM_4)

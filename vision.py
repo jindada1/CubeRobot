@@ -217,16 +217,16 @@ def get_color(hsv_value:np.ndarray) -> str:
     if s < setting.saturation:
         # black, gray, white
         for color, value in setting.values:
-            if v <= value:
-                return color
+            if v < value:
+                return color.lower()
 
     else:
         # red, orange, yellow, green, blue
         for color, value in setting.hues:
-            if h <= value:
-                return color
+            if h < value:
+                return color.lower()
     
-    return 'error'
+    return 'red'
 
 
 def sample(image:np.ndarray) -> tuple:
@@ -256,7 +256,7 @@ def sample(image:np.ndarray) -> tuple:
         grid = []
         for point in points:
             color = get_color(hsv[point[1], point[0]])
-            grid.append(color.lower())
+            grid.append(color)
         
         face.append(grid)
 

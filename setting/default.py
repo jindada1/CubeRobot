@@ -55,25 +55,29 @@ sample = [20, 20, 64]
 saturation = 43
 
 '''
-    if 0 < hue <= 10, color is red
-    elif 10 < hue <= 25, color is orange
+    if 0 <= hue < 3, color is red
+    elif 3 <= hue < 18, color is orange
     ...
 '''
 hues = [
-    ['red'   ,  10],
-    ['orange',  25],
-    ['yellow',  34],
+    ['red'   ,   3],
+    ['orange',  18],
+    ['yellow',  50],
     ['green' ,  77],
     ['blue'  , 124],
-    ['Red'   , 180]
+    ['Red'   , 181]
 ]
 
 '''
-    if 0 < value <= 46, color is black
-    elif 46 < value <= 25, color is white
+    if 0 <= value < 0, color is black
+    elif 0 <= value < 0, color is gray
+    elif 0 <= value < 256, color is white
+    common rubik's cube does not have black or gray grid, so we set black and gray to 0
+    ...
 '''
 values = [
-    ['black',  46],
-    ['white', 255]
+    ['black',   0],
+    ['gray',    0],
+    ['white', 256]
 ]
 

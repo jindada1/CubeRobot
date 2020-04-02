@@ -30,7 +30,7 @@ with open(__config_file, 'r') as f:
     
     Green = "\x1b[32m"
     End = '\033[0m'
-    print(Green, "load '%s'" % __config_file, End)
+    print(Green + "loading '%s'" % __config_file, End)
 
 
 def store():

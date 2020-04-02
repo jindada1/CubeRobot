@@ -104,7 +104,7 @@ fname = table_path("conj_twist")
 if not path.isfile(fname):
     print('On the first run, several tables will be created. This takes from 1/2 hour (e.g. PC) to 6 hours '
           '(e.g. RaspberryPi3), depending on the hardware.')
-    print("creating " + fname + " table...")
+    print("creating", fname)
     twist_conj = ar.array('H', [0] * (N_TWIST * N_SYM_D4h))
     for t in range(N_TWIST):
         cc = cb.CubieCube()
@@ -117,7 +117,7 @@ if not path.isfile(fname):
     fh = open(fname, "wb")
     twist_conj.tofile(fh)
 else:
-    print("loading " + fname + " table...")
+    print("loading", fname)
     fh = open(fname, 'rb')
     twist_conj = ar.array('H')
     twist_conj.fromfile(fh, N_TWIST * N_SYM_D4h)
@@ -128,7 +128,7 @@ fh.close()
 # #################### Generate the phase 2 table for the conjugation of the URtoDB coordinate by a symmetrie ##########
 fname = table_path("conj_ud_edges")
 if not path.isfile(fname):
-    print("creating " + fname + " table...")
+    print("creating", fname)
     ud_edges_conj = ar.array('H', [0] * (N_UD_EDGES * N_SYM_D4h))
     for t in range(N_UD_EDGES):
         if (t + 1) % 400 == 0:
@@ -146,7 +146,7 @@ if not path.isfile(fname):
     fh = open(fname, "wb")
     ud_edges_conj.tofile(fh)
 else:
-    print("loading " + fname + " table...")
+    print("loading", fname)
     fh = open(fname, "rb")
     ud_edges_conj = ar.array('H')
     ud_edges_conj.fromfile(fh, N_UD_EDGES * N_SYM_D4h)
@@ -158,7 +158,9 @@ fname1 = table_path("fs_classidx")
 fname2 = table_path("fs_sym")
 fname3 = table_path("fs_rep")
 if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
-    print("creating " + "flipslice sym-tables...")
+    print("creating", fname1)
+    print("creating", fname2)
+    print("creating", fname3)
     flipslice_classidx = ar.array('H', [INVALID] * (N_FLIP * N_SLICE))  # idx -> classidx
     flipslice_sym = ar.array('B', [0] * (N_FLIP * N_SLICE))  # idx -> symmetry
     flipslice_rep = ar.array('L', [0] * N_FLIPSLICE_CLASS)  # classidx -> idx of representant
@@ -203,8 +205,9 @@ if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
     fh.close()
 
 else:
-    print("loading " + "flipslice sym-tables...")
-
+    print("loading", fname1)
+    print("loading", fname2)
+    print("loading", fname3)
     fh = open(fname1, 'rb')
     flipslice_classidx = ar.array('H')
     flipslice_classidx.fromfile(fh, N_FLIP * N_SLICE)
@@ -224,7 +227,9 @@ fname1 = table_path("co_classidx")
 fname2 = table_path("co_sym")
 fname3 = table_path("co_rep")
 if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
-    print("creating " + "corner sym-tables...")
+    print("creating", fname1)
+    print("creating", fname2)
+    print("creating", fname3)
     corner_classidx = ar.array('H', [INVALID] * N_CORNERS)  # idx -> classidx
     corner_sym = ar.array('B', [0] * N_CORNERS)  # idx -> symmetry
     corner_rep = ar.array('H', [0] * N_CORNERS_CLASS)  # classidx -> idx of representant
@@ -264,8 +269,9 @@ if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
     fh.close()
 
 else:
-    print("loading " + "corner sym-tables...")
-
+    print("loading", fname1)
+    print("loading", fname2)
+    print("loading", fname3)
     fh = open(fname1, 'rb')
     corner_classidx = ar.array('H')
     corner_classidx.fromfile(fh,N_CORNERS)

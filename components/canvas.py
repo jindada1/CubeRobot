@@ -259,7 +259,7 @@ class CubeFloorPlan(Canvas):
         self.facelet_id = [[[0 for col in range(3)]
                             for row in range(3)] for face in range(6)]
         
-        self.colors = {
+        self.color_face = {
             'yellow': 'U',
             'green' : 'R',
             'red'   : 'F',
@@ -267,6 +267,16 @@ class CubeFloorPlan(Canvas):
             'blue'  : 'L',
             'orange': 'B'
         }
+
+        self.colors = [
+            ('yellow', 'U'),
+            ('green' , 'R'),
+            ('red'   , 'F'),
+            ('white' , 'D'),
+            ('blue'  , 'L'),
+            ('orange', 'B')
+        ]
+
         self.faces = {}
         faces_pos = self.face_position()
         self.draw_faces(faces_pos)
@@ -281,7 +291,7 @@ class CubeFloorPlan(Canvas):
         anchors = {}
         offsets = ((1, 0), (2, 1), (1, 1), (1, 2), (0, 1), (3, 1))
 
-        for i, (color, flag) in enumerate(self.colors.items()):
+        for i, (color, flag) in enumerate(self.colors):
             self.faces[color] = [0 for g in range(9)]
             x = 3 * offsets[i][0] * self.grid_width + self.padding // 2
             y = 3 * offsets[i][1] * self.grid_width + self.padding // 2
@@ -336,10 +346,10 @@ class CubeFloorPlan(Canvas):
         '''
 
         s = ''
-        for color, grids in self.faces.items():
-            for grid in grids:
+        for color, face in self.colors:
+            for grid in self.faces[color]:
                 c = self.itemcget(grid, "fill")
-                s += self.colors.get(c, '-')
+                s += self.color_face.get(c, '-')
         
         return s
 

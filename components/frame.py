@@ -164,7 +164,7 @@ class HSVAdjuster(Frame):
 
 class mySpinBox(Frame):
     
-    def __init__(self, parent, title=None, var=None, change=None, range_=(0, 180)):
+    def __init__(self, parent, title=None, var=None, change=None, range_=(0, 181)):
 
         Frame.__init__(self, master=parent, pady=padding_y)
 
@@ -276,9 +276,9 @@ class SampleAdjuster(Frame):
 
         col2 = Frame(dp)
         col2.pack(side=LEFT, fill=BOTH, expand=True)
-        mySpinBox(col2, title='sline', var=self.saturation, range_=(0, 255), change=self.color_hsv_changed).pack(fill=X)
+        mySpinBox(col2, title='sline', var=self.saturation, range_=(0, 256), change=self.color_hsv_changed).pack(fill=X)
         for color, var in self.values:
-            mySpinBox(col2, title=color, var=var, range_=(0, 255), change=self.color_hsv_changed).pack(fill=X)
+            mySpinBox(col2, title=color, var=var, range_=(0, 256), change=self.color_hsv_changed).pack(fill=X)
 
         return dp
 

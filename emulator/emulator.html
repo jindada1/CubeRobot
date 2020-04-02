@@ -581,8 +581,8 @@
 
     const STEP_TIME = 500
 
-    function rotate(f) {
-        animateRotation(faceMap[f], true, Date.now())
+    function rotate(f, clockwise = true) {
+        animateRotation(faceMap[f], clockwise, Date.now());
     }
 
     function reset() {
@@ -611,24 +611,32 @@
         setTimeout("successtip.style.visibility = 'hidden'", 3000);
     };
 
-    function play(operations) {
-        var operations = opInput.value;
-        var str = ""
-        operations.split(' ').forEach((step, index) => {
-            var face = step[0];
-            var deg = parseInt(step[1]);
-            while (deg) {
-                str += face;
-                deg--;
-            }
-        });
-        stepByStep(str, 0);
+    var operations;
+
+    function play() {
+        operations = opInput.value.split(' ');
+
+        if (operations.length) {
+            stepByStep(0);
+        }
     }
 
-    function stepByStep(str, i) {
-        rotate(str[i]);
-        if (i < str.length - 1) {
-            setTimeout(`stepByStep('${str}', ${i + 1})`, STEP_TIME);
+    function stepByStep(step) {
+
+        var face = operations[step][0];
+        var deg = parseInt(operations[step][1]);
+        console.log(face, deg)
+
+        rotate(face, deg != 3)
+
+        if (deg === 2)
+            operations[step] = face + '1';
+
+        else
+            step++;
+
+        if (step < operations.length) {
+            setTimeout(`stepByStep(${step})`, STEP_TIME);
         }
     }
 
@@ -657,11 +665,11 @@
             startY = md_e.pageY;
 
         var oh = pivot.style.transform.split(' '),
-            rotateX = parseInt(oh[0].slice(8,-4)),
-            rotateY = parseInt(oh[1].slice(8,-4));
-        
+            rotateX = parseInt(oh[0].slice(8, -4)),
+            rotateY = parseInt(oh[1].slice(8, -4));
+
         function mousemove(mm_e) {
-            pivot.style.transform = 
+            pivot.style.transform =
                 'rotateX(' + (rotateX - (mm_e.pageY - startY) / 2) + 'deg)' +
                 'rotateY(' + (rotateY + (mm_e.pageX - startX) / 2) + 'deg)';
         }

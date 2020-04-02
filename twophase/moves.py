@@ -14,7 +14,7 @@ a = cb.CubieCube()
 # 0 <= twist < 2187 in phase 1, twist = 0 in phase 2
 fname = table_path('move_twist')
 if not path.isfile(fname):
-    print("creating " + fname + " table...")
+    print("creating", fname)
     twist_move = ar.array('H', [0 for i in range(N_TWIST * N_MOVE)])
     for i in range(N_TWIST):
         a.set_twist(i)
@@ -26,7 +26,7 @@ if not path.isfile(fname):
     fh = open(fname, "wb")
     twist_move.tofile(fh)
 else:
-    print("loading " + fname + " table...")
+    print("loading", fname)
     fh = open(fname, "rb")
     twist_move = ar.array('H')
     twist_move.fromfile(fh, N_TWIST * N_MOVE)
@@ -39,7 +39,7 @@ fh.close()
 # 0 <= flip < 2048 in phase 1, flip = 0 in phase 2
 fname = table_path('move_flip')
 if not path.isfile(fname):
-    print("creating " + fname + " table...")
+    print("creating", fname)
     flip_move = ar.array('H', [0 for i in range(N_FLIP * N_MOVE)])
     for i in range(N_FLIP):
         a.set_flip(i)
@@ -51,7 +51,7 @@ if not path.isfile(fname):
     fh = open(fname, "wb")
     flip_move.tofile(fh)
 else:
-    print("loading " + fname + " table...")
+    print("loading", fname)
     fh = open(fname, "rb")
     flip_move = ar.array('H')
     flip_move.fromfile(fh, N_FLIP * N_MOVE)
@@ -66,7 +66,7 @@ fh.close()
 # 0 <= slice_sorted < 11880 in phase 1, 0 <= slice_sorted < 24 in phase 2, slice_sorted = 0 for solved cube
 fname = table_path('move_slice_sorted')
 if not path.isfile(fname):
-    print("creating " + fname + " table...")
+    print("creating", fname)
     slice_sorted_move = ar.array('H', [0 for i in range(N_SLICE_SORTED * N_MOVE)])
     for i in range(N_SLICE_SORTED):
         if i % 200 == 0:
@@ -81,7 +81,7 @@ if not path.isfile(fname):
     slice_sorted_move.tofile(fh)
     print()
 else:
-    print("loading " + fname + " table...")
+    print("loading", fname)
     fh = open(fname, "rb")
     slice_sorted_move = ar.array('H')
     slice_sorted_move.fromfile(fh, N_SLICE_SORTED * N_MOVE)
@@ -95,7 +95,7 @@ fh.close()
 # 0 <= u_edges < 11880 in phase 1, 0 <= u_edges < 1680 in phase 2, u_edges = 1656 for solved cube."""
 fname = table_path('move_u_edges')
 if not path.isfile(fname):
-    print("creating " + fname + " table...")
+    print("creating", fname)
     u_edges_move = ar.array('H', [0 for i in range(N_SLICE_SORTED * N_MOVE)])
     for i in range(N_SLICE_SORTED):
         if i % 200 == 0:
@@ -110,7 +110,7 @@ if not path.isfile(fname):
     u_edges_move.tofile(fh)
     print()
 else:
-    print("loading " + fname + " table...")
+    print("loading", fname)
     fh = open(fname, "rb")
     u_edges_move = ar.array('H')
     u_edges_move.fromfile(fh, N_SLICE_SORTED * N_MOVE)
@@ -124,7 +124,7 @@ fh.close()
 #  0 <= d_edges < 11880 in phase 1, 0 <= d_edges < 1680 in phase 2, d_edges = 0 for solved cube.
 fname = table_path('move_d_edges')
 if not path.isfile(fname):
-    print("creating " + fname + " table...")
+    print("creating", fname)
     d_edges_move = ar.array('H', [0 for i in range(N_SLICE_SORTED * N_MOVE)])
     for i in range(N_SLICE_SORTED):
         if i % 200 == 0:
@@ -139,7 +139,7 @@ if not path.isfile(fname):
     d_edges_move.tofile(fh)
     print()
 else:
-    print("loading " + fname + " table...")
+    print("loading", fname)
     fh = open(fname, "rb")
     d_edges_move = ar.array('H')
     d_edges_move.fromfile(fh, N_SLICE_SORTED * N_MOVE)
@@ -152,7 +152,7 @@ fh.close()
 # ud_edges undefined in phase 1, 0 <= ud_edges < 40320 in phase 2, ud_edges = 0 for solved cube.
 fname = table_path('move_ud_edges')
 if not path.isfile(fname):
-    print("creating " + fname + " table...")
+    print("creating", fname)
     ud_edges_move = ar.array('H', [0 for i in range(N_UD_EDGES * N_MOVE)])
     for i in range(N_UD_EDGES):
         if (i+1) % 600 == 0:
@@ -172,7 +172,7 @@ if not path.isfile(fname):
     ud_edges_move.tofile(fh)
     print()
 else:
-    print("loading " + fname + " table...")
+    print("loading", fname)
     fh = open(fname, "rb")
     ud_edges_move = ar.array('H')
     ud_edges_move.fromfile(fh, N_UD_EDGES * N_MOVE)
@@ -185,7 +185,7 @@ fh.close()
 # 0 <= corners < 40320 defined but unused in phase 1, 0 <= corners < 40320 in phase 2, corners = 0 for solved cube
 fname = table_path('move_corners')
 if not path.isfile(fname):
-    print("creating " + fname + " table...")
+    print("creating", fname)
     corners_move = ar.array('H', [0 for i in range(N_CORNERS * N_MOVE)])
     for i in range(N_CORNERS):
         if (i+1) % 200 == 0:
@@ -203,7 +203,7 @@ if not path.isfile(fname):
     fh.close()
     print()
 else:
-    print("loading " + fname + " table...")
+    print("loading", fname)
     fh = open(fname, "rb")
     corners_move = ar.array('H')
     corners_move.fromfile(fh, N_CORNERS * N_MOVE)
