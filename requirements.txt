@@ -1,15 +1,25 @@
-# python guimain.py
+# all
 numpy
-opencv-python 
 pillow
 pybluez
+matplotlib
+opencv-python 
+
+
+# python guimain.py
+# 
+# numpy
+# pillow
+# pybluez
+# opencv-python 
 
 # python guiconfig.py
 # 
 # numpy
-# opencv-python 
 # pillow
+# opencv-python 
 
+# cd .\tests\
 # python color_spaces_bgr_hsv.py
 # 
 # opencv-python

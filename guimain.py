@@ -1,8 +1,6 @@
 '''
-    main application of this project
-
     author: kris
-    
+    main application of this project
 '''
 
 import vision
@@ -59,7 +57,7 @@ class Controller(Window):
     def open_bluetooth(self):
         
         if self.bluetooth_win is None:
-            self.bluetooth_win = BlueTooth(self.window)
+            self.bluetooth_win = SubWindow(self.window)
         
         self.bluetooth_win.open()
 

@@ -21,11 +21,11 @@ python 版本: 3.5.x
 > 本人使用的是 3.5.4，如果使用更高版本的python，则使用 pip install pybluez 安装蓝牙模块时需要有 Microsoft Visual C++ 14.0 Build Tools。[link](https://visualstudio.microsoft.com/downloads/)
 
 
-+ matplotlib
-+ numpy
-+ opencv-python 
 + pillow
++ numpy
 + pybluez
++ matplotlib
++ opencv-python 
 
 
 
@@ -72,13 +72,20 @@ python 版本: 3.5.x
   python3 guiconfig.py
   ```
 
+- [x] [魔方模拟器](https://github.com/jindada1/CubeRobot/blob/master/emulator/emulator.html)的开发
+
+  - [x] 虚拟魔方的实现
+
+  - [x] 执行还原序列
+
+  - [x] 获取魔方状态
+
+
 - [ ] 主控程序的开发
 
   - [x] [计算机视觉模块](https://github.com/jindada1/CubeRobot/blob/master/vision.py)：魔方定位与颜色块的识别
 
   - [x] [魔方求解模块](https://github.com/jindada1/CubeRobot/tree/master/twophase)：[twophase](https://github.com/hkociemba/RubiksCube-TwophaseSolver)算法
-
-    - [x] [魔方模拟器](https://github.com/jindada1/CubeRobot/blob/master/emulator/emulator.html)的开发
 
   - [ ] 指令调整与优化
 
