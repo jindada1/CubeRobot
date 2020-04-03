@@ -9,9 +9,9 @@ from tkinter import *
 from components import *
 from collections import Counter
 
-class Controller(Window):
+class Client(Window):
     
-    def __init__(self, title=None):
+    def __init__(self, title=None, controller=None):
         Window.__init__(self, title)
 
         self.initui()
@@ -28,6 +28,10 @@ class Controller(Window):
 
         # bluetooth window singleton
         self.bluetooth_win = None
+        
+        self.onclose = None
+        self.window.protocol("WM_DELETE_WINDOW", self.close)
+
     
     def initui(self):
 
@@ -43,7 +47,7 @@ class Controller(Window):
 
         Control = Frame(Left)
         Control.pack(side=BOTTOM, fill=X)
-        HoverButton(Control, text='识别此面', command=self.getcolor).pack(fill=X)
+        HoverButton(Control, text='识别此面', command=self.get_face).pack(fill=X)
         HoverButton(Control, text='蓝牙', command=self.open_bluetooth).pack(fill=X)
 
         Right = Frame(Top)
@@ -84,9 +88,8 @@ class Controller(Window):
             face = list(map(lambda C: C.most_common()[0][0], self.grids))
             self.floor.show_face(face)
             s = self.floor.definition_string()
-            print(s)
     
-    def getcolor(self):
+    def get_face(self):
         
         if self.sample_id:
             return
@@ -95,7 +98,14 @@ class Controller(Window):
             self.grids[i] = Counter()
 
         self.sample_id = self.SAMPLE_FRAMES
+    
+    def close(self):
+
+        if self.onclose:
+            self.onclose()
+
+        self.window.destroy()
 
 if __name__ == "__main__":
 
-    Controller("Rubik's Cube Robot").run()
+    Client("Rubik's Cube Robot").run()
