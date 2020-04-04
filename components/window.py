@@ -10,6 +10,10 @@ class Window():
         self.update_delay = 33
         # update_func will be called in update
         self.update_func = None
+        # onclose will be called when __close
+        self.onclose = None
+
+        self.window.protocol("WM_DELETE_WINDOW", self.__close)
 
     def run(self):
 
@@ -28,6 +32,12 @@ class Window():
 
         self.window.after(self.update_delay, self.__update)
 
+    def __close(self):
+
+        if self.onclose:
+            self.onclose()
+
+        self.window.destroy()
 
 class SubWindow():
 

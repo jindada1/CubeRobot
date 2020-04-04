@@ -457,7 +457,10 @@ class Console(Frame):
             return "break"
             
     def log(self, text, tag=None):
-        
+
+        if not type(text) is str:
+            text = str(text)
+
         self.content.insert('end', "%3d " % self.line, 'index')
         self.content.insert('end', "%s\n" % text, tag)
         self.line += 1

@@ -13,6 +13,43 @@ class Controller(Thread):
 
         self.client = client
         client.onclose = self.close
+        client.finished = self.finished
+
+        self.init_tasks()
+        self.lock = False
+
+    def init_tasks(self):
+
+        self.tasks = [i for i in range(20)]
+
+    def go(self):
+        self.start()
+        self.client.run()
+
+    def handle(self):
+        
+        if self.lock or not self.tasks:
+            return
+
+        arg = self.tasks.pop()
+        if arg % 2:
+            self.client.get_face()
+            self.lock = True
+        
+        print(self.tasks)
+        print(arg)
+
+    def finished(self, arg):
+        
+        print(arg)
+        self.lock = False
+
+    def run(self):
+        
+        while self.loop:
+            delay = .5
+            sleep(delay)
+            self.handle()
 
     def close(self):
         self.loop = False
@@ -21,43 +58,6 @@ class Controller(Thread):
             sleep(.2)
 
         print('exit thread')
-
-
-    def run(self):
-        looptime = 0
-        while self.loop:
-            looptime += 1
-            print(looptime)
-
-            delay = .5
-            sleep(delay)
-
-    def go(self):
-        self.start()
-        self.client.run()
-
-
-def get_tasks() -> list:
-
-    tasks = []
-
-    for i in range(6):
-        tasks.insert(0, {
-            'name': 0,
-            'description': '正在扫描第 %s 个面' % (i + 1)
-        })
-
-    tasks.insert(0, {
-        'name': 1,
-        'description': '正在求解'
-    })
-
-    tasks.insert(0, {
-        'name': 2,
-        'description': '旋转机械臂'
-    })
-
-    return tasks
 
 if __name__ == "__main__":
 

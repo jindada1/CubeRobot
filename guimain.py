@@ -11,7 +11,7 @@ from collections import Counter
 
 class Client(Window):
     
-    def __init__(self, title=None, controller=None):
+    def __init__(self, title=None, controller=False):
         Window.__init__(self, title)
 
         self.initui()
@@ -23,14 +23,14 @@ class Client(Window):
         self.grids = [Counter() for i in range(9)]
 
         # number of a sample action
-        self.SAMPLE_FRAMES = 10
+        self.batch = 30
         self.sample_id = 0
 
         # bluetooth window singleton
         self.bluetooth_win = None
-        
-        self.onclose = None
-        self.window.protocol("WM_DELETE_WINDOW", self.close)
+
+        # self.finished will be called when task finished
+        self.finished = None
 
     
     def initui(self):
@@ -88,7 +88,12 @@ class Client(Window):
             face = list(map(lambda C: C.most_common()[0][0], self.grids))
             self.floor.show_face(face)
             s = self.floor.definition_string()
-    
+
+            self.console.log(list(map(lambda C: C[0], face)))
+
+            if self.finished:
+                self.finished(s)
+
     def get_face(self):
         
         if self.sample_id:
@@ -97,14 +102,9 @@ class Client(Window):
         for i in range(9):
             self.grids[i] = Counter()
 
-        self.sample_id = self.SAMPLE_FRAMES
+        self.sample_id = self.batch
+        self.console.log("正在识别此面色块...")
     
-    def close(self):
-
-        if self.onclose:
-            self.onclose()
-
-        self.window.destroy()
 
 if __name__ == "__main__":
 
