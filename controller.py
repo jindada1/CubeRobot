@@ -1,6 +1,7 @@
-from threading import Thread
 from time import sleep
 from guimain import Client
+from twophase import solve
+from threading import Thread
 
 
 class Controller(Thread):

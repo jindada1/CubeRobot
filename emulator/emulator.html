@@ -3,7 +3,7 @@
 
 <head>
     <title>虚拟魔方</title>
-
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <style>
         html,
         body {
@@ -455,8 +455,9 @@
     <div class="right-panel">
         <div>
             <button class="button" onclick="reset()">转回正面</button>
-            <button class="button" onclick="randomRotate()">随机打乱</button>
+            <button class="button" onclick="randomRotate()">随机打乱20步</button>
             <button class="button" onclick="getCube()">复制魔方状态到剪切板</button>
+            <button class="button" onclick="magic()">一键还原</button>
         </div>
         <div id="successtip" class="tip"> 复制成功 </div>
     </div>
@@ -596,8 +597,8 @@
                 res += colorFace[color];
             });
         })
-        console.log(res);
         copyToClipboard(res);
+        return res;
     }
 
     function copyToClipboard(str) {
@@ -613,8 +614,11 @@
 
     var operations;
 
-    function play() {
-        operations = opInput.value.split(' ');
+    function play(steps=false) {
+        if (!steps) {
+            steps = opInput.value;
+        }
+        operations = steps.split(' ');
 
         if (operations.length) {
             stepByStep(0);
@@ -622,11 +626,11 @@
     }
 
     function stepByStep(step) {
-
         var face = operations[step][0];
         var deg = parseInt(operations[step][1]);
-        console.log(face, deg)
+        if (!face) return
 
+        console.log(face, deg);
         rotate(face, deg != 3)
 
         if (deg === 2)
@@ -657,6 +661,20 @@
 
         if (step > 0)
             setTimeout(`randomRotate(${step - 1})`, STEP_TIME);
+    }
+
+    function magic() {
+        var api = 'http://localhost:8888/solve/'
+        var param = getCube();
+
+        axios.get(api + param)
+        .then(function (response) {
+            opInput.value = response.data;
+            play(response.data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }
 
     function mousedown(md_e) {

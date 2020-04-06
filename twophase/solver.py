@@ -206,7 +206,7 @@ def solve(cubestring, max_length=20, timeout=3):
      any solution yet the computation continues until a first solution appears.
     """
     fc = face.FaceCube()
-    s = fc.from_string(cubestring)
+    s = fc.from_string(cubestring.upper())
     if s != cubie.CUBE_OK:
         return s  # Error in facelet cube
     cc = fc.to_cubie_cube()
