@@ -48,7 +48,7 @@ class Client(Window):
         Control = Frame(Left)
         Control.pack(side=BOTTOM, fill=X)
         HoverButton(Control, text='识别此面', command=self.get_face).pack(fill=X)
-        HoverButton(Control, text='蓝牙', command=self.open_bluetooth).pack(fill=X)
+        HoverButton(Control, text='wifi', command=self.open_bluetooth).pack(fill=X)
 
         Right = Frame(Top)
         Right.pack(side=RIGHT, fill=Y)
