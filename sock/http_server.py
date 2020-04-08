@@ -1,3 +1,7 @@
+'''
+start or stop a http server in a thread
+you can add more routes you like and respond with text/html/json etc
+'''
 import socket
 from threading import Thread
 from twophase import solve

@@ -10,6 +10,9 @@ from components import *
 from collections import Counter
 
 class App(Window):
+    '''
+    main gui application of this project
+    '''
     
     def __init__(self, title=None, controller=False):
         Window.__init__(self, title)

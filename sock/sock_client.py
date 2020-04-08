@@ -1,3 +1,10 @@
+'''
+a socket client class that can ->
+    connect to host
+    receive msg from host
+    send msg to host
+    disconnect from host
+'''
 import socket
 from time import sleep
 from pywifi import PyWiFi

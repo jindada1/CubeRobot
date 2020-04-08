@@ -5,7 +5,9 @@ from threading import Thread
 
 
 class Controller(Thread):
-
+    '''
+    Controller thread that control main gui application
+    '''
     def __init__(self, client):
 
         Thread.__init__(self)
