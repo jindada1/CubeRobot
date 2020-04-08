@@ -1,7 +1,6 @@
 # all
 numpy
 pillow
-pybluez
 matplotlib
 opencv-python 
 
@@ -10,7 +9,6 @@ opencv-python
 # 
 # numpy
 # pillow
-# pybluez
 # opencv-python 
 
 # python guiconfig.py

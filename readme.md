@@ -17,13 +17,11 @@
 
 ## requirements
 
-python 版本: 3.5.x
-> 本人使用的是 3.5.4，如果使用更高版本的python，则使用 pip install pybluez 安装蓝牙模块时需要有 Microsoft Visual C++ 14.0 Build Tools。[link](https://visualstudio.microsoft.com/downloads/)
+python 版本: 3.x
 
 
 + pillow
 + numpy
-+ pybluez
 + matplotlib
 + opencv-python 
 
