@@ -2,7 +2,19 @@
 from tkinter import Tk, ttk, Toplevel, StringVar
 
 class Window():
+    '''
+    tkinter window
+
+    properties:
+        window: Tk() instance, root window
+
+    interfaces:
+        update_func: this method will be called when update
+        onclose: this method will be called when click right-top close button
     
+    methods:
+        run: start tk mainloop
+    '''
     def __init__(self, title=None):
         
         self.window = Tk(title)
@@ -40,12 +52,17 @@ class Window():
         self.window.destroy()
 
 class SubWindow():
-
+    '''
+    tkinter wubwindow
+    
+    methods:
+        open: focus subwindow if exits, otherwise create a new one
+    '''
     def __init__(self, parent):
 
         self.parent = parent
         self.win = None
-        self.mac = StringVar()
+        self.selected = StringVar()
 
     def open(self):
 
@@ -54,9 +71,9 @@ class SubWindow():
             return
         
         else:
-            self.create()
+            self.__create()
     
-    def create(self):
+    def __create(self):
 
         self.win = Toplevel(self.parent)
         self.display()
@@ -66,7 +83,7 @@ class SubWindow():
         for i in range(9):
             text = 'text_%d' % i
             value = 'value_%d' % i
-            ttk.Radiobutton(self.win, text=text, variable=self.mac, value=value).pack()
+            ttk.Radiobutton(self.win, text=text, variable=self.selected, value=value).pack()
 
 if __name__ == "__main__":
     

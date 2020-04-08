@@ -1,4 +1,8 @@
 '''
+    kociemba algorithm: twophase approach
+    
+    solve(cubestring)
+
     this package is modified from:
         https://github.com/hkociemba/RubiksCube-TwophaseSolver
 

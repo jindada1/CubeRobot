@@ -2,12 +2,19 @@ from cv2 import VideoCapture, CAP_DSHOW, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HE
 
 class Camera:
     '''
-        valid video frame size (width x height):
-            640 x 480
-            352 x 288
-            320 x 240
-            176 x 144
-            160 x 120
+    contains a cv2.VideoCapture instance
+    
+    methods:
+        open: open the effective camera device on you computer
+        frame: get frame captured by camera
+        close: release camera if opened
+
+    valid video frame size (width x height):
+        640 x 480
+        352 x 288
+        320 x 240
+        176 x 144
+        160 x 120
     '''
 
     def __init__(self, camera=1, w=640, h=480):

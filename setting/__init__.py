@@ -1,3 +1,9 @@
+'''
+setting module:
+    manage configuration data
+    load config.json in module folder when imported
+    store changed value into config.json
+'''
 from .default import *
 import json
 

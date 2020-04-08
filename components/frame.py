@@ -11,12 +11,17 @@ except:
 padding_y = 4
 
 class HSVAdjuster(Frame):
-
     '''
-        adjust hsv range of a color, and store in json file 
+    adjust hsv range of a color, and store in json file
 
+    interfaces:
+        adjusting: callback when adjusting hsv ranges
+        toggle: callback when toggle mode
+        save: callback when click 'save' button
+    
+    methods:
+        set_hsv_range: initialize hsv ranges
     '''
-
     def __init__(self, parent, adjusting=None, toggle=None, save=None):
 
         Frame.__init__(self, master=parent, pady=padding_y)
@@ -31,7 +36,7 @@ class HSVAdjuster(Frame):
         self.adjusting = adjusting
         # bind event, callback when toggle mode
         self.toggle = toggle
-        # bind event, callback when toggle mode
+        # bind event, callback when click save button
         self.save = save
 
         # store hsv ranges val
@@ -163,7 +168,12 @@ class HSVAdjuster(Frame):
 
 
 class mySpinBox(Frame):
-    
+    '''
+    custom spinbox
+
+    interfaces:
+        change: callback when value changed
+    '''
     def __init__(self, parent, title=None, var=None, change=None, range_=(0, 181)):
 
         Frame.__init__(self, master=parent, pady=padding_y)
@@ -204,12 +214,18 @@ class mySpinBox(Frame):
 
 
 class SampleAdjuster(Frame):
+    '''
+    adjust hsv range of a color, and store in json file
+
+    interfaces:
+        adjusting: callback when adjusting sampling area
+        toggle: callback when toggle mode
+        save: callback when click 'save' button
+    
+    methods:
+        set_data: initialize sampling area
 
     '''
-        adjust hsv range of a color, and store in json file 
-
-    '''
-
     def __init__(self, parent, adjusting=None, toggle=None, save=None):
 
         Frame.__init__(self, master=parent, pady=padding_y)
