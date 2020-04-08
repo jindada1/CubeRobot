@@ -9,7 +9,7 @@ from tkinter import *
 from components import *
 from collections import Counter
 
-class Client(Window):
+class App(Window):
     
     def __init__(self, title=None, controller=False):
         Window.__init__(self, title)
@@ -108,4 +108,4 @@ class Client(Window):
 
 if __name__ == "__main__":
 
-    Client("Rubik's Cube Robot").run()
+    App("Rubik's Cube Robot").run()

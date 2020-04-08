@@ -1,5 +1,5 @@
 from time import sleep
-from guimain import Client
+from guimain import App
 from twophase import solve
 from threading import Thread
 
@@ -62,6 +62,6 @@ class Controller(Thread):
 
 if __name__ == "__main__":
 
-    client = Client("Rubik's Cube Robot")
+    client = App("Rubik's Cube Robot")
 
     Controller(client).go()
