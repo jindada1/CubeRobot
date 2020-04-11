@@ -456,7 +456,7 @@
         <div>
             <button class="button" onclick="reset()">转回正面</button>
             <button class="button" onclick="randomRotate()">随机打乱20步</button>
-            <button class="button" onclick="getCube()">复制魔方状态到剪切板</button>
+            <button class="button" onclick="copyToClipboard()">复制魔方状态到剪切板</button>
             <button class="button" onclick="magic()">一键还原</button>
         </div>
         <div id="successtip" class="tip"> 复制成功 </div>
@@ -597,13 +597,12 @@
                 res += colorFace[color];
             });
         })
-        copyToClipboard(res);
         return res;
     }
 
-    function copyToClipboard(str) {
+    function copyToClipboard() {
         const el = document.createElement('textarea');
-        el.value = str;
+        el.value = getCube();
         document.body.appendChild(el);
         el.select();
         document.execCommand('copy');

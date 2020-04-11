@@ -84,6 +84,7 @@ def start_http_server(handler=http_handler):
         sys.exit()
         
     s.listen(10)
+    print('-------------------------------------')
     print('Server run in http://127.0.0.1:%d' % port)
 
     while RUNNING:
