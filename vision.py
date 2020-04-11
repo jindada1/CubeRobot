@@ -41,11 +41,11 @@ def straighten(contours: list) -> tuple:
     ''' 
         find the left-top and the right-bottom in every contour(a group of points).
 
-        x1,y1 ------
-        |          |
-        |          |
-        |          |
-        --------x2,y2
+         x1,y1 ------
+         |          |
+         |          |
+         |          |
+         --------x2,y2
 
         input:
             a list of contours
@@ -116,6 +116,12 @@ def sort_coordinate(grids: dict) -> list:
 def hsv_range_mask(image: np.ndarray, _range: tuple) -> np.ndarray:
     '''
         filter {color} in inmage
+        
+        input: 
+            color range
+        
+        output: 
+            remain pixels with color in range
     '''
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -244,7 +250,6 @@ def sample(image:np.ndarray) -> tuple:
                 ... 9 grids ...
                 [color1, color2, ... , color5],
             ],
-
             image: cropped image(sample area)
     '''
     
@@ -266,7 +271,7 @@ def sample(image:np.ndarray) -> tuple:
 
 def manual_find(image:np.ndarray) -> tuple:
     '''
-        Directly specified the sample points for color recognition
+        recognize color of specified sample points
     '''
     grid_samples = sample_coordinates()
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)

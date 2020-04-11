@@ -70,7 +70,7 @@ python 版本: 3.x
   python3 guiconfig.py
   ```
 
-- [x] [魔方模拟器](https://github.com/jindada1/CubeRobot/blob/master/emulator/emulator.html)的开发
+- [x] [魔方模拟器](https://github.com/jindada1/CubeRobot/blob/master/sock/emulator.html)的开发
 
   - [x] 虚拟魔方的实现
 
