@@ -1,42 +1,38 @@
 '''
-a socket client class that can ->
-    connect to host
-    receive msg from host
-    send msg to host
-    disconnect from host
+an esp8266 wifi client class that can ->
+    connect to esp8266 access point
+    receive msg from esp8266 working on AP mode
+    send msg to esp8266
 '''
-import socket
 from time import sleep
 from pywifi import PyWiFi
+from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
+
 
 class SClient(object):
     '''
-        socket client
+        esp8266 wifi client
 
         callback: 
             - on_recv: will be called when msg received
 
         methods:
             - detect: scan nearby wifi signals
-            - connect: connect to server
-            - send: send msg to server
-        
+            - connect: connect to wifi
+            - send: send msg to ap server
+
         properties:
-            - host: server ip
-            - port: server port
-            - client: socket instance
-            - running: listening thread
+            - host: ip address of access point
+            - port: port
     '''
-    def __init__(self, host='127.0.0.1', port=4396):
+
+    def __init__(self, host='127.0.0.1', port=80):
         self.host = host
         self.port = port
 
         # whis func will be called when msg received
         self.on_recv = None
-
-        self.client = None
-        self.running = True
 
     def detect(self):
         wifi = PyWiFi()
@@ -53,46 +49,57 @@ class SClient(object):
 
     def connect(self):
 
-        # socket client, socket.AF_INET means IPv4
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client.connect((self.host, self.port))
+        pass
 
-        Thread(target=self.__recv).start()
+    def local_ip(self):
 
-    def send(self, msg):
+        pass
 
-        if not type(msg) is str:
-            msg = str(msg)
+    def get_url_body(self, params: dict) -> str:
 
-        if type(msg) is str:
-            msg = msg.encode()
+        if not params:
+            return ''
 
-        return self.client.sendall(msg)
+        body = '?'
+        for key, value in params.items():
+            body += str(key) + '=' + str(value) + '&'
 
-    def __recv(self):
+        return body[:-1]
 
-        while self.running:
+    def send(self, route: str, params: dict = {}):
 
-            msg = self.client.recv(1024)
-            msg = msg.decode()
+        url = route + self.get_url_body(params)
 
-            if self.on_recv:
-                self.on_recv(msg)
+        client = socket(AF_INET, SOCK_STREAM)
+        client.connect((self.host, self.port))
 
-            print(msg)
+        request = "GET %s HTTP/1.1\r\nHost:%s\r\n\r\n" % (url, self.host)
+        print(request)
 
-    def close(self):
-        # stop receive loop
-        self.running = False
+        client.sendall(request.encode())
+        Thread(target=self.__recv, args=(client,)).start()
 
-    def __del__(self):
+    def __recv(self, client):
 
-        if self.client:
-            self.client.close()
+        msg = client.recv(1024).decode('utf-8')
+        code = self.http_code(msg)
 
-        print('close')
+        if self.on_recv:
+            self.on_recv(code)
+
+        print(code)
+
+    def http_code(self, response: str):
+
+        return response.split("\n")[0].split(' ')[1]
+
 
 if __name__ == "__main__":
-    
-    client = SClient()
-    client.detect()
+
+    client = SClient(host='192.168.4.1')
+
+    for i in range(3):
+        client.send('/wait', {
+            'time': 1000
+        })
+        sleep(3)
