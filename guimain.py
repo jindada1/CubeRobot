@@ -7,13 +7,15 @@ import vision
 import setting
 from tkinter import *
 from components import *
+from sock import EspWifiClient
 from collections import Counter
+
 
 class App(Window):
     '''
     main gui application of this project
     '''
-    
+
     def __init__(self, title=None, controller=False):
         Window.__init__(self, title)
 
@@ -30,12 +32,12 @@ class App(Window):
         self.sample_id = 0
 
         # bluetooth window singleton
-        self.bluetooth_win = None
+        self.esp_client = EspWifiClient()
+        self.esp_client.wifi_connected = self.device_connected
 
         # self.finished will be called when task finished
         self.finished = None
 
-    
     def initui(self):
 
         self.camera = Camera()
@@ -51,7 +53,7 @@ class App(Window):
         Control = Frame(Left)
         Control.pack(side=BOTTOM, fill=X)
         HoverButton(Control, text='识别此面', command=self.get_face).pack(fill=X)
-        HoverButton(Control, text='wifi', command=self.open_bluetooth).pack(fill=X)
+        HoverButton(Control, text='连接设备', command=self.connect_device).pack(fill=X)
 
         Right = Frame(Top)
         Right.pack(side=RIGHT, fill=Y)
@@ -61,12 +63,18 @@ class App(Window):
         self.console = Console(Right)
         self.console.pack(side=BOTTOM, fill=BOTH, expand=True)
 
-    def open_bluetooth(self):
-        
-        if self.bluetooth_win is None:
-            self.bluetooth_win = SubWindow(self.window)
-        
-        self.bluetooth_win.open()
+    def connect_device(self):
+
+        ssid, pw = setting.wifi
+        self.esp_client.connect(ssid, pw)
+
+    def device_connected(self):
+
+        ip = self.esp_client.host
+        self.console.log('设备已连接, ip为' + ip, 'success')
+
+        if self.finished:
+            self.finished(ip)
 
     def update(self):
 
@@ -77,7 +85,7 @@ class App(Window):
         self.analyse(face)
 
     def analyse(self, face):
-        
+
         if not self.sample_id:
             return
 
@@ -85,7 +93,7 @@ class App(Window):
             self.sample_id -= 1
             for i, grid in enumerate(face):
                 self.grids[i] += Counter(grid)
-        
+
         else:
             self.sample_id = 0
             face = list(map(lambda C: C.most_common()[0][0], self.grids))
@@ -98,7 +106,7 @@ class App(Window):
                 self.finished(s)
 
     def get_face(self):
-        
+
         if self.sample_id:
             return
 
@@ -107,7 +115,7 @@ class App(Window):
 
         self.sample_id = self.batch
         self.console.log("正在识别此面色块...")
-    
+
 
 if __name__ == "__main__":
 

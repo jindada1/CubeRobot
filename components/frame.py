@@ -10,6 +10,7 @@ except:
 
 padding_y = 4
 
+
 class HSVAdjuster(Frame):
     '''
     adjust hsv range of a color, and store in json file
@@ -18,10 +19,11 @@ class HSVAdjuster(Frame):
         adjusting: callback when adjusting hsv ranges
         toggle: callback when toggle mode
         save: callback when click 'save' button
-    
+
     methods:
         set_hsv_range: initialize hsv ranges
     '''
+
     def __init__(self, parent, adjusting=None, toggle=None, save=None):
 
         Frame.__init__(self, master=parent, pady=padding_y)
@@ -52,14 +54,14 @@ class HSVAdjuster(Frame):
             v_l = StringVar(self, value=str(low))
             v_r = StringVar(self, value=str(up))
             self.hsv_range_vars[color] = (v_l, v_r)
-        
+
         self.visualPanel = self.init_visual_panel()
         return self
 
     def init_visual_panel(self):
 
         visualPanel = Frame(self)
-        
+
         col1 = Frame(visualPanel)
         col1.pack(side=LEFT, fill=Y, expand=True)
         col2 = Frame(visualPanel)
@@ -109,11 +111,11 @@ class HSVAdjuster(Frame):
         for i, (prop, l, r) in enumerate(self.hsv_space):
             Label(col1, text=prop).pack(fill=Y, expand=True)
 
-            Scale(col2, from_=l, to=r, variable=self.lower_vars[i], tickinterval=r, command=self.sliding, \
-                orient='horizontal').pack(fill=Y, expand=True)
+            Scale(col2, from_=l, to=r, variable=self.lower_vars[i], tickinterval=r, command=self.sliding,
+                  orient='horizontal').pack(fill=Y, expand=True)
 
-            Scale(col3, from_=l, to=r, variable=self.upper_vars[i], tickinterval=r, command=self.sliding, \
-                orient='horizontal').pack(fill=Y, expand=True)
+            Scale(col3, from_=l, to=r, variable=self.upper_vars[i], tickinterval=r, command=self.sliding,
+                  orient='horizontal').pack(fill=Y, expand=True)
 
         return adjustPanel
 
@@ -135,7 +137,7 @@ class HSVAdjuster(Frame):
             ])
 
     def visualize(self):
-    
+
         self.adjustPanel.pack_forget()
         self.visualPanel.pack(fill=BOTH, expand=True)
         if self.toggle:
@@ -174,6 +176,7 @@ class mySpinBox(Frame):
     interfaces:
         change: callback when value changed
     '''
+
     def __init__(self, parent, title=None, var=None, change=None, range_=(0, 181)):
 
         Frame.__init__(self, master=parent, pady=padding_y)
@@ -188,7 +191,7 @@ class mySpinBox(Frame):
     def init_widgets(self):
 
         if self.title:
-             Label(self,text=self.title, width=6).pack(side=LEFT)
+            Label(self, text=self.title, width=6).pack(side=LEFT)
 
         c = Frame(self)
         c.pack(side=RIGHT, fill=X, expand=True)
@@ -204,8 +207,8 @@ class mySpinBox(Frame):
         val += op
 
         if self.range and (val < self.range[0] or val > self.range[1]):
-                val -= op
-                return
+            val -= op
+            return
 
         self.var.set(str(val))
 
@@ -221,11 +224,12 @@ class SampleAdjuster(Frame):
         adjusting: callback when adjusting sampling area
         toggle: callback when toggle mode
         save: callback when click 'save' button
-    
+
     methods:
         set_data: initialize sampling area
 
     '''
+
     def __init__(self, parent, adjusting=None, toggle=None, save=None):
 
         Frame.__init__(self, master=parent, pady=padding_y)
@@ -236,11 +240,11 @@ class SampleAdjuster(Frame):
         self.save = save
 
         self.vars = [IntVar() for i in range(3)]
-        
+
         self.projection_rate = 1    # float: projection rate, big/small
         self.sample_area = None     # int: rectangle created by canvas, represents sampling area
         self.smallscreen = None     # tuple: (w, h, y): info of smallscreen
-        self.bigscreen = None       # tuple: (w, h): size of bigsreen, passed by caller, 
+        self.bigscreen = None       # tuple: (w, h): size of bigsreen, passed by caller,
         self.sample = None          # list: [x, y, w]: sample in smallscreen
 
         self.scale_step = StringVar(value='10')
@@ -268,7 +272,7 @@ class SampleAdjuster(Frame):
 
         panel = Frame(cp)
         panel.pack(fill=BOTH, expand=True)
-        
+
         self.canvas = Canvas(panel, bg='white', width=40, height=30, bd=0, highlightthickness=0)
         self.canvas.pack(fill=BOTH, expand=True, pady=4)
         self.canvas.bind("<Enter>", self.init_projection)
@@ -321,7 +325,7 @@ class SampleAdjuster(Frame):
             self.draw_sample_area()
 
         w, h, y = self.smallscreen
-        
+
         self.canvas.create_line(0,   y-3, w,   y-3, fill="palegreen", width=3)
         self.canvas.create_line(0, h+y+3, w, h+y+3, fill="palegreen", width=3)
 
@@ -330,8 +334,8 @@ class SampleAdjuster(Frame):
         y += self.smallscreen[2]
         w = 3*w
 
-        self.sample_area = self.canvas.create_rectangle(x, y, x+w, y+w, \
-            fill='whitesmoke', outline="skyblue", activewidth=3)
+        self.sample_area = self.canvas.create_rectangle(x, y, x+w, y+w,
+                                                        fill='whitesmoke', outline="skyblue", activewidth=3)
 
         self.canvas.tag_bind(self.sample_area, '<Button-1>', self.dragstart)
         self.canvas.tag_bind(self.sample_area, '<B1-Motion>', self.draging)
@@ -342,8 +346,8 @@ class SampleAdjuster(Frame):
         self.s_x = self.sample[0]
         self.s_y = self.sample[1]
 
-    def draging(self,event):
-        
+    def draging(self, event):
+
         self.sample[0] = event.x - self.x + self.s_x
         self.sample[1] = event.y - self.y + self.s_y
 
@@ -418,14 +422,14 @@ class SampleAdjuster(Frame):
 
         else:
             print('test', 'click save')
-    
+
     def toggle(self):
         self.toggle_val = not self.toggle_val
 
         if self.toggle_val:
             self.data_panel.pack_forget()
             self.canvas_panel.pack(fill=BOTH, expand=True)
-        
+
         else:
             self.canvas_panel.pack_forget()
             self.data_panel.pack(fill=BOTH, expand=True)
@@ -434,7 +438,7 @@ class SampleAdjuster(Frame):
 class Console(Frame):
 
     def __init__(self, parent, debug=False):
-        
+
         Frame.__init__(self, master=parent)
 
         self.line = 1
@@ -443,13 +447,14 @@ class Console(Frame):
         self.initwidgets()
 
     def initwidgets(self):
-        
+
         Left = Frame(self, height=10)
         Left.pack(side=LEFT, fill=BOTH, expand=True)
 
         self.content = C = Text(Left, width=20, height=3)
-        C.tag_config('index',foreground='green', background="whitesmoke" )
-        C.tag_config('warning',foreground='black', background="lemonchiffon" )
+        C.tag_config('index', foreground='green', background='whitesmoke')
+        C.tag_config('warning', foreground='black', background='lemonchiffon')
+        C.tag_config('success', foreground='green', background='white')
         C.bind("<Key>", lambda e: self.__ctrl(e))
         C.pack(fill=BOTH, expand=True)
 
@@ -464,16 +469,19 @@ class Console(Frame):
         S.config(command=C.yview)
         C.config(yscrollcommand=S.set)
 
-
     def __ctrl(self, event):
-        if(12==event.state and event.keysym=='c' ):
+        if(12 == event.state and event.keysym == 'c'):
             return
         else:
             self.log('read only', 'warning')
             return "break"
-            
-    def log(self, text, tag=None):
 
+    def log(self, text, tag: str = None):
+        '''
+        tag:str
+            - warning: foreground=black, background=lemonchiffon
+            - success: foreground=green, background=white
+        '''
         if not type(text) is str:
             text = str(text)
 
@@ -481,12 +489,12 @@ class Console(Frame):
         self.content.insert('end', "%s\n" % text, tag)
         self.line += 1
         self.content.see('end')
-    
+
     def clear(self):
 
         self.line = 1
-        self.content.delete('1.0','end')
-    
+        self.content.delete('1.0', 'end')
+
     def __addline(self):
 
         self.log('debug')
@@ -498,13 +506,13 @@ if __name__ == "__main__":
 
     window = Tk()
     hr = {
-        'Red'   : ([156,  43,  46], [180, 255, 255]), # Red
-        'red'   : ([  0,  43,  46], [ 13, 255, 255]), # Red
-        'blue'  : ([ 69, 120, 100], [179, 255, 255]), # Blue
-        'yellow': ([ 21, 110, 117], [ 45, 255, 255]), # Yellow
-        'orange': ([  0, 110, 125], [ 17, 255, 255]), # Orange
-        'white' : ([  0,   0, 221], [180,  30, 255]), # White
-        'green' : ([ 35,  43,  46], [ 77, 255, 255]), # Green
+        'Red': ([156,  43,  46], [180, 255, 255]),  # Red
+        'red': ([0,  43,  46], [13, 255, 255]),  # Red
+        'blue': ([69, 120, 100], [179, 255, 255]),  # Blue
+        'yellow': ([21, 110, 117], [45, 255, 255]),  # Yellow
+        'orange': ([0, 110, 125], [17, 255, 255]),  # Orange
+        'white': ([0,   0, 221], [180,  30, 255]),  # White
+        'green': ([35,  43,  46], [77, 255, 255]),  # Green
     }
     # HSVAdjuster(window).set_hsv_range(hr).pack()
     # SampleAdjuster(window).pack(fill=BOTH, expand=True)

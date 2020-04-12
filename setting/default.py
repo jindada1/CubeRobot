@@ -81,3 +81,7 @@ values = [
     ['white', 256]
 ]
 
+'''
+wifi configuration: [ssid, password]
+'''
+wifi = ['Rubik-Cube', '1213141516']

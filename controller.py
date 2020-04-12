@@ -16,7 +16,7 @@ class Controller(Thread):
 
         self.client = client
         client.onclose = self.close
-        client.finished = self.finished
+        client.finished = self.task_finished
 
         self.init_tasks()
         self.lock = False
@@ -42,7 +42,7 @@ class Controller(Thread):
         print(self.tasks)
         print(arg)
 
-    def finished(self, arg):
+    def task_finished(self, arg):
         
         print(arg)
         self.lock = False

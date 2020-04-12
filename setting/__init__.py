@@ -34,6 +34,10 @@ with open(__config_file, 'r') as f:
     if cfg['values']:
         values = cfg['values']
     
+    # load wifi configuration
+    if cfg['wifi']:
+        wifi = cfg['wifi']
+    
     Green = "\x1b[32m"
     End = '\033[0m'
     print(Green + "loading '%s'" % __config_file, End)
@@ -46,6 +50,7 @@ def store():
     __configuration['saturation'] = saturation
     __configuration['hues'] = hues
     __configuration['values'] = values
+    __configuration['wifi'] = wifi
 
     with open(__config_file, 'w') as f:
         json.dump(__configuration, f)

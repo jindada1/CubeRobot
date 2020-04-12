@@ -6,13 +6,13 @@ an esp8266 wifi client class that can ->
 '''
 from time import sleep
 from threading import Thread
-from subprocess import Popen, PIPE
 from pywifi import PyWiFi, Profile, const
 from socket import socket, AF_INET, SOCK_STREAM
+from subprocess import Popen, check_output, PIPE
 
 
 
-class WifiClient(object):
+class EspWifiClient(object):
     '''
         esp8266 wifi client
 
@@ -21,7 +21,7 @@ class WifiClient(object):
             - wifi_connected: will be called when wifi connected
 
         methods:
-            - scan: scan nearby wifi signals
+            - scan_wifi: scan_wifi nearby wifi signals
             - connect: connect to wifi
             - send: send msg to ap server
 
@@ -48,10 +48,10 @@ class WifiClient(object):
     @property
     def aps(self):
         if not self._aps:
-            self.scan()
+            self.scan_wifi()
         return self._aps
 
-    def scan(self):
+    def scan_wifi(self):
         self.iface.scan()
         sleep(1)
         scaners = self.iface.scan_results()
@@ -68,13 +68,21 @@ class WifiClient(object):
         self.display_aps()
         return self._aps
 
+    def current_wifi(self):
+        wow = check_output("netsh wlan show interfaces")
+        return wow.decode('gbk')
+
     def display_aps(self):
         for name, data in self._aps.items():
             print("{:<15} {} {} {}".format(name, data['bssid'], data['signal'], data['freq']))
 
     def connect(self, ssid, pw):
-        profile = Profile()
+        if ssid in self.current_wifi():
+            self.__connecting()
+            print('already connected', ssid)
+            return
 
+        profile = Profile()
         profile.key = pw
         profile.ssid = ssid
         profile.auth = const.AUTH_ALG_OPEN
@@ -85,9 +93,9 @@ class WifiClient(object):
         tmp_profile = self.iface.add_network_profile(profile)
 
         self.iface.connect(tmp_profile)
-        Thread(target=self.connecting).start()
+        Thread(target=self.__connecting, daemon=True).start()
 
-    def connecting(self):
+    def __connecting(self):
 
         while True:
             status = self.iface.status()
@@ -103,7 +111,7 @@ class WifiClient(object):
 
     def gateway_ip(self, lang='zh'):
         
-        command = 'ipconfig | FINDSTR ' + ('Default Gateway', '默认网关')[lang == 'zh']
+        command = 'ipconfig | findstr ' + ('Default Gateway', '默认网关')[lang == 'zh']
         pipe = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
 
         line = pipe.stdout.readline()
@@ -138,7 +146,7 @@ class WifiClient(object):
         print(request)
 
         client.sendall(request.encode())
-        Thread(target=self.__recv, args=(client,)).start()
+        Thread(target=self.__recv, args=(client,), daemon=True).start()
 
     def __recv(self, client):
 
@@ -157,7 +165,10 @@ class WifiClient(object):
 
 if __name__ == "__main__":
 
-    client = WifiClient()
-    # client.scan()
-    # client.connect('Rubik-Cube', '1213141516')
-    client.send('/get', 'qwewe')
+    client = EspWifiClient()
+    # client.scan_wifi()
+    client.connect('Rubik-Cube', '1213141516')
+    client.send('/wait', {
+        'time': 3000
+    })
+    # client.current_wifi()
