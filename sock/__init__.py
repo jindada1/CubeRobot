@@ -12,12 +12,12 @@ socket client:
     disconnect from host
 '''
 from .http_server import start_http_server, stop_http_server
-from .sock_client import SClient
+from .sock_client import WifiClient
 
 __all__ = [
     'start_http_server',
     'stop_http_server',
-    'SClient'
+    'WifiClient'
 ]
 
 __version__ = '1.0'
