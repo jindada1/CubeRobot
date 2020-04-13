@@ -9,7 +9,7 @@
 1. 通过摄像头识别魔方颜色
 2. 将识别结果转化成魔方求解算法的输入
 3. 执行魔方求解算法，得出还原操作序列
-4. 通过蓝牙模块将序列发给硬件控制器
+4. 通过wifi将序列发给硬件控制器
 5. 硬件控制器按照序列，控制机械结构执行还原
 6. over
 
@@ -20,6 +20,7 @@
 python 版本: 3.x
 
 
++ pywifi
 + pillow
 + numpy
 + matplotlib
@@ -78,6 +79,8 @@ python 版本: 3.x
 
   - [x] 获取魔方状态
 
+  - [x] twophase 求解接口的[后台服务器](https://github.com/jindada1/CubeRobot/blob/master/sock/http_server.py)
+
 
 - [ ] 主控程序的开发
 
@@ -87,12 +90,24 @@ python 版本: 3.x
 
   - [ ] 指令调整与优化
 
-  - [ ] 蓝牙模块
+  - [x] [wifi模块](https://github.com/jindada1/CubeRobot/blob/master/sock/esp_client.py)
+
+    - [x] wifi检测与连接
+
+    - [x] 自动获取 esp8266 模块在 ap 模式下的 ip 地址
+    
+    - [x] 发送数据和接收数据
 
 
 
 ### 硬件部分
 
-- [ ] 蓝牙连接及操作序列的接收模块
+- [x] esp8266
+
+  - [x] ap 模式
+
+  - [x] 提供路由处理来自客户端的请求，并返回处理结果
+
+- [ ] 操作序列的解析
 
 - [ ] 电机控制逻辑

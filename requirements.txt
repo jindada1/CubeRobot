@@ -1,13 +1,14 @@
 # all
 numpy
 pillow
+pywifi
 matplotlib
 opencv-python 
-
 
 # python guimain.py
 # 
 # numpy
+# pywifi
 # pillow
 # opencv-python 
 
