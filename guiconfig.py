@@ -135,7 +135,7 @@ class Configutator(Window):
     # open or close camera
     def toggle_camera(self):
 
-        if self.view.Mode == 1:
+        if self.view.Mode == self.view.CAMERA_MODE:
             self.view.close_camera()
             self.status_var.set('摄像头已关闭')
             
@@ -148,7 +148,7 @@ class Configutator(Window):
     # start or stop scan image
     def toggle_scan(self):
 
-        if self.view.Mode == 0:
+        if self.view.Mode == self.view.DEFAULT_MODE:
             self.status_var.set('请开启摄像头或打开图片')
             self.scan_btn_var.set(self.scan_texts[0])
             return
@@ -158,15 +158,15 @@ class Configutator(Window):
         if self.scaning:
             self.status_var.set('正在扫描魔方')
 
-            if self.view.Mode > 0:
+            if self.view.Mode != self.view.DEFAULT_MODE:
                 self.update_func = self.get_cube_color
 
         else:
             self.update_func = self.refresh
-            if self.view.Mode == 1:
+            if self.view.Mode == self.view.CAMERA_MODE:
                 self.status_var.set('使用摄像头中')
             
-            if self.view.Mode == 2:
+            if self.view.Mode == self.view.PICTURE_MODE:
                 self.status_var.set('图片')
 
         self.scan_btn_var.set(self.scan_texts[self.scaning])
@@ -222,7 +222,7 @@ class Configutator(Window):
             # filter hsv color
             self.hsv_mask_range = hsv_range
 
-            if self.view.Mode > 0:
+            if self.view.Mode != self.view.DEFAULT_MODE:
                 self.update_func = self.filter_hsv_color
 
         else:

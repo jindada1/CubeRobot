@@ -38,6 +38,10 @@ class App(Window):
         # self.finished will be called when task finished
         self.finished = None
 
+    @property
+    def cube_str(self):
+        return self.floor.definition_string()
+
     def initui(self):
 
         self.camera = Camera()
@@ -98,12 +102,10 @@ class App(Window):
             self.sample_id = 0
             face = list(map(lambda C: C.most_common()[0][0], self.grids))
             self.floor.show_face(face)
-            s = self.floor.definition_string()
-
             self.console.log(list(map(lambda C: C[0], face)))
 
             if self.finished:
-                self.finished(s)
+                self.finished()
 
     def get_face(self):
 

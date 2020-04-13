@@ -4,10 +4,6 @@ you can add more routes you like and respond with text/html/json etc
 '''
 import socket
 from threading import Thread
-try:
-    from twophase import solve
-except:
-    print('未加载 twophase 模块')
 
 global RUNNING
 RUNNING = True
@@ -73,6 +69,11 @@ def http_handler(conn):
 
 
 def start_http_server(handler=http_handler):
+    
+    try:
+        from twophase import solve
+    except:
+        print('未加载 twophase 模块')
 
     port = 8888
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

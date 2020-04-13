@@ -48,22 +48,25 @@ class ViewCanvas(Canvas):
         self.frame = None
 
         # 0:nothing, 1:camera, 2:picture
-        self.Mode = 0
+        self.DEFAULT_MODE = 0
+        self.CAMERA_MODE = 1
+        self.PICTURE_MODE = 2
+        self.Mode = self.DEFAULT_MODE
 
     def open_camera(self):
         self.camera.open()
-        self.Mode = 1
+        self.Mode = self.CAMERA_MODE
 
     def close_camera(self):
         self.camera.close()
-        self.Mode = 0
+        self.Mode = self.DEFAULT_MODE
 
     # get frame in screen
     def screen(self):
-        if self.Mode == 1:
+        if self.Mode == self.CAMERA_MODE:
             return self.camera.frame()
 
-        elif self.Mode == 2:
+        elif self.Mode == self.PICTURE_MODE:
             return self.picture.copy()
 
     # display frame on canvas
@@ -88,11 +91,11 @@ class ViewCanvas(Canvas):
         if not filepath:
             return
 
-        if self.Mode == 1:
+        if self.Mode == self.CAMERA_MODE:
             self.close_camera()
             
         self.picture = self.validate(cv2.imread(filepath))
-        self.Mode = 2
+        self.Mode = self.PICTURE_MODE
 
     def validate(self, image):
 

@@ -16,8 +16,7 @@ class EspWifiClient(object):
     '''
         esp8266 wifi client
 
-        callback: 
-            - on_recv: will be called when msg received
+        callback:
             - wifi_connected: will be called when wifi connected
 
         methods:
@@ -40,8 +39,6 @@ class EspWifiClient(object):
         # all access points nearby
         self._aps = {}
 
-        # this func will be called when msg received
-        self.on_recv = None
         # this func will be called when wifi connected
         self.wifi_connected = None
 
@@ -104,7 +101,7 @@ class EspWifiClient(object):
             sleep(.5)
 
         self.host = self.gateway_ip()
-        print('wifi connected, gateway ip is', self.host)
+        # print('wifi connected, gateway ip is', self.host)
 
         if self.wifi_connected:
             self.wifi_connected()
@@ -143,20 +140,13 @@ class EspWifiClient(object):
         client.connect((self.host, self.port))
 
         request = "GET %s HTTP/1.1\r\nHost:%s\r\n\r\n" % (url, self.host)
-        print(request)
 
         client.sendall(request.encode())
-        Thread(target=self.__recv, args=(client,), daemon=True).start()
-
-    def __recv(self, client):
 
         msg = client.recv(1024).decode('utf-8')
         code = self.http_code(msg)
-
-        if self.on_recv:
-            self.on_recv(code)
-
-        print(code)
+        
+        return code == '200'
 
     def http_code(self, response: str):
 
