@@ -18,14 +18,31 @@
 /* Set these to your desired credentials. */
 const char *ssid = APSSID;
 const char *password = APPSK;
+const char faces[4] = {'L', 'R', 'F', 'B'};
+const int pins[4] = {D5, D6, D7, D8};
 
 ESP8266WebServer server(80);
+
+void initPins()
+{
+  for(int i = 0; i < 4; i++)
+    pinMode(pins[i], OUTPUT);
+}
+
+int pinByFace(char face)
+{
+  for(int i = 0; i < 4; i++)
+    if(face == faces[i])
+      return pins[i];
+}
 
 void act(char face, char deg)
 {
   Serial.print(face);
   Serial.print("-");
   Serial.print(deg);
+
+  digitalWrite(pinByFace(face), HIGH);
 }
 
 void analyse(char *command)
@@ -97,14 +114,23 @@ void setup()
 {
   delay(1000);
   Serial.begin(115200);
-  Serial.println();
-  Serial.print("Configuring access point...");
-  /* You can remove the password parameter if you want the AP to be open. */
+  initPins();
+  openWifi();
+  setupRouters();
+}
+
+void openWifi()
+{
+  Serial.println("\n Configuring access point...");
   WiFi.softAP(ssid, password);
 
   IPAddress myIP = WiFi.softAPIP();
-  Serial.print("\nAP IP address: ");
+  Serial.print("AP IP address: ");
   Serial.println(myIP);
+}
+
+void setupRouters()
+{
   server.on("/", onIndex);
   server.on("/wait", onWait);
   server.on("/action", onAction);
