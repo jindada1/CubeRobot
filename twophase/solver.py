@@ -241,9 +241,3 @@ def solve(cubestring, max_length=20, timeout=3):
             s += m.name + ' '
     return s
 ########################################################################################################################
-
-if __name__ == "__main__":
-    
-    cube = 'FRBFUDLFLFLDBRFFUUBRDLFUUUDBLRLDRDBFLDUBLBBFRLDUUBRRDR'
-    a = solve(cube)
-    print(a)

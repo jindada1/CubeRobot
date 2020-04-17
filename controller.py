@@ -24,6 +24,9 @@ class Controller(Thread):
         self.waiting = False
         self.next_task_id = 0
 
+        # instructions that restore the rubik's cube
+        self.instructions = None
+
         self.operations = {
             'conn': self.gui.connect_device,
             'face': self.gui.get_face,
@@ -41,20 +44,58 @@ class Controller(Thread):
         return self.tasks[self.next_task_id - 1]
 
     def get_solution(self):
-        cube_definition = self.gui.cube_str
-        print('cube definition is', cube_definition)
+        # self.instructions = solve(self.gui.cube_str)
+        cube = "F2 R3 U2 B2 R3 D2 F2 R1 U2 F1 D3 R3 D2 R1 B3 D3 F2 U3 R3 U2"
+        self.instructions = solve(cube)
         self.task_end()
 
+    def adapt_instruction(self, raw_ins: str) -> str:
+        '''
+        raw_ins: for example "F2 R3 U2 B2 R3 D2 F2 R1 U2 F1 D3 R3 D2 R1 B3 D3 F2 U3 R3 U2"
+        replace actions contains U, D with instructions contains L, F, R, B
+        for example:
+            U1 = F3,B1 L1 F1,B3
+            U2 = F3,B1 L2 F1,B3
+            D1 = F3,B1 R1 F1,B3
+        '''
+        actions = raw_ins.split(' ')
+        for i in range(len(actions)):
+            action = actions[i]
+            face = action[0]
+
+            if face == 'U':
+                deg = action[1]
+                actions[i] = 'F3,B1 L%s F1,B3' % deg
+            
+            elif face == 'D':
+                deg = action[1]
+                actions[i] = 'F3,B1 R%s F1,B3' % deg
+
+        return ' '.join(actions)
+            
     def send_instructions(self):
-        res = self.gui.esp_client.send('/wait', {
-            'time': 2000
+        '''
+        instructions(str): a serial of actions, use whitespace to separate actions
+        for example:
+            F1 B3 F1,B3 U1 L2.
+        '''
+        adapted_ins = self.adapt_instruction(self.instructions)
+        res = self.gui.esp_client.send('/restore', {
+            'ins': adapted_ins
         })
         self.task_end()
 
-    def send_action(self, action):
-        print('send action', action)
-        res = self.gui.esp_client.send('/wait', {
-            'time': 2000
+    def send_action(self, action: str):
+        '''
+        action(str): rotate one or many faces. [face][deg], use ',' to combine multiple faces
+        for example:
+            F1: rotate face 'F' 90 degrees clockwise
+            B3: rotate face 'B' 90 degrees counterclockwise
+            F1,B3: flip the entire cube to the right, which means L -> U, U -> R, R -> B, B -> L.
+        '''
+        # print('send action', action)
+        res = self.gui.esp_client.send('/action', {
+            'action': action
         })
         self.task_end()
 
@@ -62,7 +103,7 @@ class Controller(Thread):
         self.start()
         self.gui.run()
 
-    def task_start(self, task):
+    def task_start(self, task: str):
         self.waiting = True
         op = task.split(':')
         func = self.operations[op[0]]
@@ -110,32 +151,32 @@ cube_robot_tasks = [
     # face: recognize colors on face 1
     'face',
     # horizontal rotation →
-    'send:h',
+    'send:F1,B3',
     # face: recognize colors on face 2
     'face',
     # horizontal rotation →
-    'send:h',
+    'send:F1,B3',
     # face: recognize colors on face 3
     'face',
     # horizontal rotation →
-    'send:h',
+    'send:F1,B3',
     # face: recognize colors on face 4
     'face',
     # horizontal rotation →
-    'send:h',
+    'send:F1,B3',
     # vertical rotation ↑
-    'send:v',
+    'send:L3,R1',
     # face: recognize colors on face 5
     'face',
     # vertical rotation ↓ x 2
-    'send:-2v',
+    'send:L2,R3',
     # face: recognize colors on face 6
     'face',
     # vertical rotation ↑
-    'send:v',
+    'send:L3,R1',
     # get cube solution
     'solu',
-    # just solve cube
+    # solve the cube
     'cube'
 ]
 
@@ -143,7 +184,7 @@ if __name__ == "__main__":
 
     gui = App("Rubik's Cube Robot")
     con = Controller(gui, cube_robot_tasks)
-
+    
     try:
         con.go()
     except:
