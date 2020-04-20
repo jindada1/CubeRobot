@@ -8,6 +8,9 @@ from threading import Thread
 global RUNNING
 RUNNING = True
 
+global solve_cube
+solve_cube = None
+
 def get_request(b_header):
     header_str = b_header.decode().lower()
     req = (header_str.split('\r\n'))[0]
@@ -39,7 +42,7 @@ def router(route):
     
     if route[:7] == '/solve/':
         cube = route[7:]
-        seq = solve(cube)
+        seq = solve_cube(cube)
         return text_response(seq)
 
     elif route[:5] == '/stop':
@@ -72,6 +75,8 @@ def start_http_server(handler=http_handler):
     
     try:
         from twophase import solve
+        global solve_cube
+        solve_cube = solve
     except:
         print('未加载 twophase 模块')
 
@@ -107,5 +112,11 @@ def stop_http_server():
 
 
 if __name__ == "__main__":
-    
+    try:
+        import sys
+        sys.path.append("..")
+        from twophase import solve
+        solve_cube = solve
+    except:
+        print('未加载 twophase 模块')
     start_http_server()
