@@ -1,25 +1,12 @@
-# all
-numpy
-pillow
-pywifi
-matplotlib
-opencv-python 
-
 # python guimain.py
-# 
-# numpy
-# pywifi
-# pillow
-# opencv-python 
+
+numpy
+pywifi
+pillow
+opencv-python 
 
 # python guiconfig.py
 # 
 # numpy
 # pillow
-# opencv-python 
-
-# cd .\tests\
-# python color_spaces_bgr_hsv.py
-# 
 # opencv-python
-# matplotlib

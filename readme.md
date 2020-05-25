@@ -23,7 +23,6 @@ python 版本: 3.x
 + pywifi
 + pillow
 + numpy
-+ matplotlib
 + opencv-python 
 
 
