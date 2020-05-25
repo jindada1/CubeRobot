@@ -31,7 +31,7 @@ class App(Window):
         self.batch = 30
         self.sample_id = 0
 
-        # bluetooth window singleton
+        # wifi client instance
         self.esp_client = EspWifiClient()
         self.esp_client.wifi_connected = self.device_connected
 

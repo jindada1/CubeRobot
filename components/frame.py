@@ -437,9 +437,12 @@ class SampleAdjuster(Frame):
 
 class Console(Frame):
 
-    def __init__(self, parent, debug=False):
+    def __init__(self, parent, debug=False, width=20, height=3):
 
         Frame.__init__(self, master=parent)
+
+        self.w = width
+        self.h = height
 
         self.line = 1
         self.debug = debug
@@ -451,7 +454,7 @@ class Console(Frame):
         Left = Frame(self, height=10)
         Left.pack(side=LEFT, fill=BOTH, expand=True)
 
-        self.content = C = Text(Left, width=20, height=3)
+        self.content = C = Text(Left, width=self.w, height=self.h)
         C.tag_config('index', foreground='green', background='whitesmoke')
         C.tag_config('warning', foreground='black', background='lemonchiffon')
         C.tag_config('success', foreground='green', background='white')

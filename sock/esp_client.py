@@ -67,6 +67,7 @@ class EspWifiClient(object):
 
     def current_wifi(self):
         wow = check_output("netsh wlan show interfaces")
+        print(wow)
         return wow.decode('gbk')
 
     def display_aps(self):
@@ -157,8 +158,8 @@ if __name__ == "__main__":
 
     client = EspWifiClient()
     # client.scan_wifi()
-    client.connect('Rubik-Cube', '1213141516')
-    client.send('/wait', {
-        'time': 3000
-    })
-    # client.current_wifi()
+    # client.connect('Rubik-Cube', '1213141516')
+    # client.send('/wait', {
+    #     'time': 3000
+    # })
+    client.current_wifi()
