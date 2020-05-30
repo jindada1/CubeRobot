@@ -18,17 +18,16 @@
 class myStepper
 {
 public:
-  myStepper(int *p, char *cs[4])
+  myStepper(int *p, char *cs[4], int r = 512)
   {
     pins = p;
     codes = cs;
     phase = 0;
-    dir = 1;
     pinNum = 3;
-    rot = 512;
+    rot = r;
   };
 
-  void step()
+  void step(int dir)
   {
     for (int i = 0; i < pinNum; i++)
     {
@@ -46,16 +45,27 @@ public:
 
   void rotate(int deg, int direct)
   {
-    dir = direct;
+    // phase = 0;
     deg = rot * deg;
-    phase = 0;
     while (deg > 0)
     {
-      step();
+      step(direct);
       deg--;
       delay(3);
     }
   };
+
+  void r_steps(int steps, int direct)
+  {
+    while (steps > 0)
+    {
+      step(direct);
+      steps--;
+      delay(3);
+    }
+  };
+
+  int rots() { return rot; }
 
 private:
   int pinNum;
@@ -63,8 +73,6 @@ private:
   char **codes;
   // 当前高电平所在的相位
   int phase;
-  // 电机旋转得方向
-  int dir;
   // 单位角度对应的 step 数，也就是90°对应的step数512
   int rot;
 };
@@ -82,7 +90,7 @@ myStepper Left(GROUP_1, P1);
 myStepper Right(GROUP_2, P1);
 myStepper Front(GROUP_1, P2);
 myStepper Back(GROUP_2, P2);
-myStepper Down(GROUP_3, P1);
+myStepper Down(GROUP_3, P1, 256);
 
 /* Set these to your desired credentials. */
 const char *ssid = APSSID;
@@ -96,27 +104,28 @@ void initPins()
     pinMode(PINS[i], OUTPUT);
 }
 
-void act(char face, char deg)
+void config(char face, int steps, int clockwise)
 {
-  Serial.print(face);
-  Serial.print(" - ");
-  Serial.println(deg);
   switch (face)
   {
   case 'L':
-    Left.rotate(1, -1);
+    Left.r_steps(steps, clockwise);
     break;
 
   case 'R':
-    Right.rotate(1, -1);
+    Right.r_steps(steps, clockwise);
     break;
 
   case 'F':
-    Front.rotate(1, -1);
+    Front.r_steps(steps, clockwise);
     break;
 
   case 'B':
-    Back.rotate(1, -1);
+    Back.r_steps(steps, clockwise);
+    break;
+
+  case 'D':
+    Down.r_steps(steps, clockwise);
     break;
 
   default:
@@ -124,18 +133,53 @@ void act(char face, char deg)
   }
 }
 
-void analyse(char *command)
+void flip(myStepper L, myStepper R, int deg, int dir)
 {
-  act(command[0], command[1]);
-  char *next = strchr(command, ',');
-  while (next != 0)
+  int steps = L.rots() * deg;
+  while (steps > 0)
   {
-    Serial.print(" | ");
-    ++next;
-    act(next[0], next[1]);
-    next = strchr(next, ',');
+    L.step(dir);
+    R.step(-dir);
+    steps--;
+    delay(3);
   }
-  Serial.println();
+}
+
+void act(char face, int deg, int clockwise)
+{
+  switch (face)
+  {
+  case 'L':
+    Left.rotate(deg, clockwise);
+    break;
+
+  case 'R':
+    Right.rotate(deg, clockwise);
+    break;
+
+  case 'F':
+    Front.rotate(deg, clockwise);
+    break;
+
+  case 'B':
+    Back.rotate(deg, clockwise);
+    break;
+
+  case 'D':
+    Down.rotate(deg, clockwise);
+    break;
+
+  case 'H':
+    flip(Front, Back, deg, clockwise);
+    break;
+
+  case 'V':
+    flip(Left, Right, deg, clockwise);
+    break;
+
+  default:
+    break;
+  }
 }
 
 void onIndex()
@@ -144,49 +188,30 @@ void onIndex()
   server.send(200, "text/html", "<h1>You are connected</h1>");
 }
 
-void onWait()
+void onConfig()
 {
-  Serial.println("/wait");
-  int waitTime = 2000;
-  if (server.hasArg("time"))
+  Serial.println("/config");
+  if (server.hasArg("steps"))
   {
-    waitTime = atoi(server.arg("time").c_str());
+    char face = (server.arg("face").c_str())[0];
+    int steps = atoi(server.arg("steps").c_str());
+    int clockwise = atoi(server.arg("clockwise").c_str());
+    config(face, steps, clockwise);
   }
-  delay(waitTime);
-  server.send(200, "text/html", "<h1>waited " + String(waitTime) + " ms</h1>");
+  server.send(200, "text/plain", "/config"); //Response to the HTTP request
 }
 
 void onAction()
 {
   Serial.println("/action");
-  if (server.hasArg("action"))
+  if (server.hasArg("deg"))
   {
-    String s_action = server.arg("action");
-    char *command = new char[s_action.length() + 1];
-    s_action.toCharArray(command, s_action.length() + 1);
-    analyse(command);
+    char face = (server.arg("face").c_str())[0];
+    int deg = atoi(server.arg("deg").c_str());
+    int clockwise = atoi(server.arg("clockwise").c_str());
+    act(face, deg, clockwise);
   }
-  server.send(200, "text/plain", "message"); //Response to the HTTP request
-}
-
-void onRestore()
-{
-  Serial.println("/restore");
-  if (server.hasArg("ins"))
-  {
-    String s_actions = server.arg("ins");
-
-    char *c_actions = new char[s_actions.length() + 1];
-    s_actions.toCharArray(c_actions, s_actions.length() + 1);
-
-    char *command = strtok(c_actions, " ");
-    while (command != 0)
-    {
-      analyse(command);
-      command = strtok(0, " ");
-    }
-  }
-  server.send(200, "text/plain", "message"); //Response to the HTTP request
+  server.send(200, "text/plain", "/action"); //Response to the HTTP request
 }
 
 void setup()
@@ -211,9 +236,8 @@ void openWifi()
 void setupRouters()
 {
   server.on("/", onIndex);
-  server.on("/wait", onWait);
+  server.on("/config", onConfig);
   server.on("/action", onAction);
-  server.on("/restore", onRestore);
   server.begin();
   Serial.println("HTTP server started");
 }

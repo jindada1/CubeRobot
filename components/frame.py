@@ -177,11 +177,12 @@ class mySpinBox(Frame):
         change: callback when value changed
     '''
 
-    def __init__(self, parent, title=None, var=None, change=None, range_=(0, 181)):
+    def __init__(self, parent, title=None, var=None, change=None, range_=(0, 181), editable=False):
 
         Frame.__init__(self, master=parent, pady=padding_y)
 
         self.var = var or IntVar()
+        self.entry_state = 'normal' if editable else 'disabled'
         self.range = range_
         self.change = change
         self.title = title
@@ -197,7 +198,7 @@ class mySpinBox(Frame):
         c.pack(side=RIGHT, fill=X, expand=True)
         HoverButton(c, text='-', params=-1, click=self.action) \
             .pack(side=LEFT, fill=X, expand=True)
-        Entry(c, textvariable=self.var, width=4, bd=0, state='disabled', justify='center') \
+        Entry(c, textvariable=self.var, width=4, bd=0, state=self.entry_state, justify='center') \
             .pack(side=LEFT, fill=BOTH, expand=True)
         HoverButton(c, text='+', params=1, click=self.action) \
             .pack(side=LEFT, fill=X, expand=True)

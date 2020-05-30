@@ -11,7 +11,6 @@ from socket import socket, AF_INET, SOCK_STREAM
 from subprocess import Popen, check_output, PIPE
 
 
-
 class EspWifiClient(object):
     '''
         esp8266 wifi client
@@ -43,7 +42,7 @@ class EspWifiClient(object):
         self.wifi_connected = None
 
     @property
-    def aps(self):
+    def nearby(self):
         if not self._aps:
             self.scan_wifi()
         return self._aps
@@ -56,28 +55,35 @@ class EspWifiClient(object):
         for scaner in scaners:
             if not scaner.ssid:
                 continue
-            self._aps[scaner.ssid] = {
-                'bssid': scaner.bssid,
-                'signal': scaner.signal,
-                'freq': scaner.freq
-            }
+            try:
+                ssid = scaner.ssid.encode(encoding='raw_unicode_escape', errors='strict').decode()
+                
+                self._aps[ssid] = {
+                    'bssid': scaner.bssid,
+                    'signal': scaner.signal,
+                    'freq': scaner.freq
+                }
+            except:
+                pass
 
-        self.display_aps()
         return self._aps
 
     def current_wifi(self):
-        wow = check_output("netsh wlan show interfaces")
-        print(wow)
-        return wow.decode('gbk')
-
-    def display_aps(self):
-        for name, data in self._aps.items():
-            print("{:<15} {} {} {}".format(name, data['bssid'], data['signal'], data['freq']))
+        b_info = check_output("netsh wlan show interfaces")
+        ssid_ = b_info[b_info.find(b'SSID'):]
+        b_ssid = ssid_[:ssid_.find(b'\r')]
+        ssid = b_ssid.decode('utf8').split()
+        return ssid[-1]
 
     def connect(self, ssid, pw):
-        if ssid in self.current_wifi():
+
+        if ssid == self.current_wifi():
             self.__connecting()
-            print('already connected', ssid)
+            return
+
+        if not ssid in self.nearby.keys():
+            if self.wifi_connected:
+                self.wifi_connected(False)
             return
 
         profile = Profile()
@@ -102,13 +108,12 @@ class EspWifiClient(object):
             sleep(.5)
 
         self.host = self.gateway_ip()
-        # print('wifi connected, gateway ip is', self.host)
 
         if self.wifi_connected:
-            self.wifi_connected()
+            self.wifi_connected(True)
 
     def gateway_ip(self, lang='zh'):
-        
+
         command = 'ipconfig | findstr ' + ('Default Gateway', '默认网关')[lang == 'zh']
         pipe = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
 
@@ -117,7 +122,12 @@ class EspWifiClient(object):
         if not line:
             return self.gateway_ip('en') if lang == 'zh' else None
 
-        return line.decode('gbk').split(":")[-1].split()[0]
+        try:
+            res = line.decode('gbk').split(":")[-1].split()[0]
+        except:
+            res = line
+        
+        return res
 
     def get_url_body(self, params: dict) -> str:
 
@@ -133,7 +143,8 @@ class EspWifiClient(object):
     def send(self, route: str, params: dict = {}):
 
         if not self.host:
-            raise Exception("no host")
+            print("[x] %s:%s" % (route, str(params)))
+            return False
 
         url = route + self.get_url_body(params)
 
@@ -146,7 +157,7 @@ class EspWifiClient(object):
 
         msg = client.recv(1024).decode('utf-8')
         code = self.http_code(msg)
-        
+
         return code == '200'
 
     def http_code(self, response: str):
@@ -160,6 +171,8 @@ if __name__ == "__main__":
     # client.scan_wifi()
     # client.connect('Rubik-Cube', '1213141516')
     # client.send('/wait', {
-    #     'time': 3000
+    #     'time': 3000 
     # })
-    client.current_wifi()
+    # c_wifi = client.current_wifi()
+    # client.scan_wifi()
+    print(client.nearby.keys())

@@ -16,10 +16,11 @@ class App(Window):
     main gui application of this project
     '''
 
-    def __init__(self, title=None, controller=False):
+    def __init__(self, title=None, controlled=False):
         Window.__init__(self, title)
 
-        self.initui()
+        # whether controlled by thread
+        self.controlled = controlled
 
         # update_func will be executed in loop
         self.update_func = self.update
@@ -35,8 +36,10 @@ class App(Window):
         self.esp_client = EspWifiClient()
         self.esp_client.wifi_connected = self.device_connected
 
-        # self.finished will be called when task finished
-        self.finished = None
+        # self.message is the chanel to send message to controller thread
+        self.message = None
+        
+        self.initui()
 
     @property
     def cube_str(self):
@@ -58,6 +61,8 @@ class App(Window):
         Control.pack(side=BOTTOM, fill=X)
         HoverButton(Control, text='识别此面', command=self.get_face).pack(fill=X)
         HoverButton(Control, text='连接设备', command=self.connect_device).pack(fill=X)
+        if self.controlled:
+            HoverButton(Control, text='暂停任务', click=self.to_controller, params='pause').pack(fill=X)
 
         Right = Frame(Top)
         Right.pack(side=RIGHT, fill=Y)
@@ -72,13 +77,22 @@ class App(Window):
         ssid, pw = setting.wifi
         self.esp_client.connect(ssid, pw)
 
-    def device_connected(self):
+    def device_connected(self, success):
 
-        ip = self.esp_client.host
-        self.console.log('设备已连接, ip为' + ip, 'success')
+        if success:
+            ip = self.esp_client.host
+            self.console.log('设备已连接, ip为' + ip, 'success')
+        
+        else:
+            self.console.log('连接失败')
 
-        if self.finished:
-            self.finished(ip)
+        if self.controlled:
+            self.message('finish', success)
+
+    def to_controller(self, action):
+        
+        if self.message:
+            self.message(action)
 
     def update(self):
 
@@ -104,8 +118,8 @@ class App(Window):
             self.floor.show_face(face)
             self.console.log(list(map(lambda C: C[0], face)))
 
-            if self.finished:
-                self.finished()
+            if self.controlled:
+                self.message('finish')
 
     def get_face(self):
 
