@@ -125,7 +125,7 @@ class EspWifiClient(object):
         try:
             res = line.decode('gbk').split(":")[-1].split()[0]
         except:
-            res = line
+            res = line.decode('gbk')
         
         return res
 

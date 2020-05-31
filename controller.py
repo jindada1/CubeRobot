@@ -71,7 +71,7 @@ class Controller(Thread):
             'U': 'F',
             'F': 'D',
             'D': 'B',
-            'B': 'F',
+            'B': 'U',
             'L': 'L',
             'R': 'R'
         }
@@ -86,7 +86,7 @@ class Controller(Thread):
 
                 wow = index
                 while wow < len(sequence):
-                    sequence[wow] = flip[face]
+                    sequence[wow] = flip[sequence[wow]]
                     wow += 3
 
             else:
@@ -178,7 +178,7 @@ cube_robot_tasks = [
     # face: recognize colors on face 1
     'face',
     # expand FB
-    'send:D1',
+    'send:D3',
     # horizontal rotation →
     'send:H1',
     # face: recognize colors on face 2
@@ -206,7 +206,7 @@ cube_robot_tasks = [
     # vertical rotation ↑
     'send:V1',
     # shrink LR
-    'send:D1',
+    'send:D3',
     # get cube solution
     'solu',
     # solve the cube
@@ -222,4 +222,3 @@ if __name__ == "__main__":
         con.go()
     except:
         con.close()
-        
