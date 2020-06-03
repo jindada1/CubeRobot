@@ -164,6 +164,60 @@ def sample_coordinates():
         
     return sample_points
 
+def five_points(x, y, w) -> list:
+    '''
+        five-point sampling
+        x   x
+          x
+        x   x
+    '''
+    return [
+        (x +   w//4, y +   w//4),
+        (x + 3*w//4, y +   w//4),
+        (x +   w//2, y +   w//2),
+        (x +   w//4, y + 3*w//4),
+        (x + 3*w//4, y + 3*w//4)
+    ]
+
+def border_points(x, y, w, _dir) -> list:
+    '''
+        1   ↓
+        3   →
+        5   ←
+        7   ↑
+    '''
+    directions = [
+        [
+            (x +   w//6, y + 2*w//3),
+            (x + 5*w//6, y + 2*w//3),
+            (x +   w//2, y + 3*w//4),
+            (x +   w//4, y + 3*w//4),
+            (x + 3*w//4, y + 3*w//4)
+        ],
+        [
+            (x + 2*w//3, y +   w//6),
+            (x + 2*w//3, y + 5*w//6),
+            (x + 3*w//4, y +   w//2),
+            (x + 3*w//4, y +   w//4),
+            (x + 3*w//4, y + 3*w//4)
+        ],
+        [
+            (x +   w//4, y +   w//2),
+            (x +   w//4, y +   w//4),
+            (x +   w//4, y + 3*w//4),
+            (x +   w//3, y +   w//6),
+            (x +   w//3, y + 5*w//6)
+        ],
+        [
+            (x +   w//2, y +   w//4),
+            (x +   w//4, y +   w//4),
+            (x + 3*w//4, y +   w//4),
+            (x +   w//6, y +   w//3),
+            (x + 5*w//6, y +   w//3)
+        ]
+    ]
+
+    return directions[_dir//2]
 
 def count_sample_points(new_data=None):
     '''
@@ -192,18 +246,14 @@ def count_sample_points(new_data=None):
         b_x = col*w + x
         b_y = row*w + y
         '''
-            five-point sampling
-            x   x
-              x
-            x   x
+            0 1 0
+            3 0 5
+            0 7 0
         '''
-        sample_points[i] = [
-            (b_x +   w//4, b_y +   w//4),
-            (b_x + 3*w//4, b_y +   w//4),
-            (b_x +   w//2, b_y +   w//2),
-            (b_x +   w//4, b_y + 3*w//4),
-            (b_x + 3*w//4, b_y + 3*w//4)
-        ]
+        if i % 2:
+            sample_points[i] = border_points(b_x, b_y, w, i)
+        else:
+            sample_points[i] = five_points(b_x, b_y, w)
     
 
 def get_color(hsv_value:np.ndarray) -> str:

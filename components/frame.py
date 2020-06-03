@@ -1,4 +1,4 @@
-from tkinter import ttk, Frame, Scale, Label, Entry, Canvas, Scrollbar, Text
+from tkinter import ttk, Frame, Scale, Label, Entry, Canvas, Scrollbar, Text, Radiobutton
 from tkinter import LEFT, RIGHT, BOTH, X, Y, IntVar, StringVar
 
 try:
@@ -502,6 +502,84 @@ class Console(Frame):
     def __addline(self):
 
         self.log('debug')
+
+
+class ControlPanel(Frame):
+    '''
+    send instruction to robot
+
+    interfaces:
+        sending: callback when send instruction
+    '''
+
+    def __init__(self, parent, esp_client, sending=None):
+
+        Frame.__init__(self, master=parent)
+
+        self.step_var = IntVar(value=512)
+        self.deg_var = IntVar(value=2)
+        self.clockwise_var = IntVar(value=-1)
+
+        self.initui()
+
+        # wifi client instance
+        self.esp_client = esp_client
+
+        self.sending = sending
+
+    def initui(self):
+        Top = Frame(self)
+        Top.pack(fill=BOTH, expand=True)
+
+        Left = Frame(Top)
+        Left.pack(side=LEFT, fill=BOTH, expand=True)
+
+        HoverButton(Left, text='旋转左面',   click=self.rotate, params='L').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        HoverButton(Left, text='旋转右面',   click=self.rotate, params='R').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        HoverButton(Left, text='旋转前面',   click=self.rotate, params='F').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        HoverButton(Left, text='旋转后面',   click=self.rotate, params='B').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        HoverButton(Left, text='拉伸',       click=self.rotate, params='D').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        HoverButton(Left, text='左右翻转',   click=self.rotate, params='H').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        HoverButton(Left, text='前后翻转',   click=self.rotate, params='V').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        mySpinBox(Left, range_=(1, 2), var=self.deg_var, editable=True).pack(fill=X)
+        
+        Right = Frame(Top)
+        Right.pack(side=LEFT, fill=BOTH, expand=True)
+
+        HoverButton(Right, text='L电机', click=self.config, params='L').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        HoverButton(Right, text='R电机', click=self.config, params='R').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        HoverButton(Right, text='F电机', click=self.config, params='F').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        HoverButton(Right, text='B电机', click=self.config, params='B').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        HoverButton(Right, text='D电机', click=self.config, params='D').pack(fill=BOTH, expand=True, pady=2, padx=2)
+        mySpinBox(Right, range_=(0, 512), var=self.step_var, editable=True).pack(fill=X)
+
+        Bottom = Frame(self)
+        Bottom.pack(side='bottom', fill=X)
+        Radiobutton(Bottom, text='顺时针', variable=self.clockwise_var, value=1).pack(side=LEFT)
+        Radiobutton(Bottom, text='逆时针', variable=self.clockwise_var, value=-1).pack(side=LEFT)
+
+    def rotate(self, face, deg = 1):
+
+        self.esp_client.send('/action', {
+            'face': face,
+            'deg': self.deg_var.get(),
+            'clockwise': self.clockwise_var.get()
+        })
+
+        if self.sending:
+            self.sending('【动作】面 %s，角 %d，方向 %d' % (face, deg, self.clockwise_var.get()))
+
+    def config(self, face):
+
+        self.esp_client.send('/config', {
+            'face': face,
+            'steps': self.step_var.get(),
+            'clockwise': self.clockwise_var.get()
+        })
+
+        if self.sending:
+            self.sending('【调试】电机 %s，步数 %d，方向 %d' % (face, self.step_var.get(), self.clockwise_var.get()))
+
 
 
 if __name__ == "__main__":

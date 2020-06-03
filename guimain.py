@@ -52,25 +52,31 @@ class App(Window):
 
         Top = Frame(self.window)
         Top.pack(fill=BOTH, expand=True)
-        Left = Frame(Top)
-        Left.pack(side=LEFT, fill=BOTH, expand=True)
+        Left = Frame(Top, bg='white')
+        Left.pack(side=LEFT, fill=Y)
         self.canvas = CameraCanvas(Left, w=300, h=300)
         self.canvas.pack(expand=True)
+        self.floor = CubeFloorPlan(Left)
+        self.floor.pack()
 
-        Control = Frame(Left)
+        Mid = Frame(Top)
+        Mid.pack(side=LEFT, fill=BOTH, padx=5, expand=True)
+        self.console = Console(Mid, width=40)
+        self.console.pack(fill=BOTH, expand=True)
+
+        Control = Frame(Mid)
         Control.pack(side=BOTTOM, fill=X)
         HoverButton(Control, text='识别此面', command=self.get_face).pack(fill=X)
-        HoverButton(Control, text='连接设备', command=self.connect_device).pack(fill=X)
+        HoverButton(Control, text='连接esp8266', command=self.connect_device).pack(fill=X)
         if self.controlled:
             HoverButton(Control, text='暂停任务', click=self.to_controller, params='pause').pack(fill=X)
 
         Right = Frame(Top)
         Right.pack(side=RIGHT, fill=Y)
-        self.floor = CubeFloorPlan(Right)
-        self.floor.pack()
+        ControlPanel(Right, esp_client=self.esp_client, sending=self.sending_msg).pack(fill=BOTH, expand=True)
 
-        self.console = Console(Right)
-        self.console.pack(side=BOTTOM, fill=BOTH, expand=True)
+    def sending_msg(self, s):
+        self.console.log(s)
 
     def connect_device(self):
 

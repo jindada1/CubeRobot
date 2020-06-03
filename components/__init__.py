@@ -3,7 +3,7 @@ from .video import Camera
 from .button import HoverButton
 from .window import Window, SubWindow
 from .canvas import ViewCanvas, CubeFloorPlan, CameraCanvas
-from .frame import HSVAdjuster, SampleAdjuster, Console, mySpinBox
+from .frame import HSVAdjuster, SampleAdjuster, Console, mySpinBox, ControlPanel
 
 
 __all__ = [
@@ -15,6 +15,7 @@ __all__ = [
     'ViewCanvas',
     'HoverButton',
     'HSVAdjuster',
+    'ControlPanel',
     'CameraCanvas',
     'CubeFloorPlan',
     'SampleAdjuster'

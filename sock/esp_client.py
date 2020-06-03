@@ -33,6 +33,9 @@ class EspWifiClient(object):
         self.host = host
         self.port = port
 
+        self.ssid = None
+        self.pw   = None
+
         # pywifi's interface
         self.iface = PyWiFi().interfaces()[0]
         # all access points nearby
@@ -97,6 +100,10 @@ class EspWifiClient(object):
         tmp_profile = self.iface.add_network_profile(profile)
 
         self.iface.connect(tmp_profile)
+
+        self.ssid = ssid
+        self.pw   = pw
+
         Thread(target=self.__connecting, daemon=True).start()
 
     def __connecting(self):
@@ -140,25 +147,37 @@ class EspWifiClient(object):
 
         return body[:-1]
 
-    def send(self, route: str, params: dict = {}):
+    def send(self, route: str, params: dict = {}, retry = False):
 
         if not self.host:
             print("[x] %s:%s" % (route, str(params)))
             return False
+        
+        try:
+            url = route + self.get_url_body(params)
 
-        url = route + self.get_url_body(params)
+            client = socket(AF_INET, SOCK_STREAM)
+            client.connect((self.host, self.port))
 
-        client = socket(AF_INET, SOCK_STREAM)
-        client.connect((self.host, self.port))
+            request = "GET %s HTTP/1.1\r\nHost:%s\r\n\r\n" % (url, self.host)
 
-        request = "GET %s HTTP/1.1\r\nHost:%s\r\n\r\n" % (url, self.host)
+            client.sendall(request.encode())
 
-        client.sendall(request.encode())
+            msg = client.recv(1024).decode('utf-8')
+            code = self.http_code(msg)
 
-        msg = client.recv(1024).decode('utf-8')
-        code = self.http_code(msg)
+            return code == '200'
 
-        return code == '200'
+        except:
+            
+            if retry:
+                return False
+
+            if self.ssid and self.pw:
+                self.connect(self.ssid, self.pw)
+
+            return False
+
 
     def http_code(self, response: str):
 
