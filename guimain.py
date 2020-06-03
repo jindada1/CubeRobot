@@ -39,6 +39,10 @@ class App(Window):
         # self.message is the chanel to send message to controller thread
         self.message = None
         
+        self.c_mode = 1
+        self.c_mode_str = ['暂停任务', '开始任务']
+        self.c_running = StringVar(value=self.c_mode_str[self.c_mode])
+
         self.initui()
 
     @property
@@ -69,7 +73,8 @@ class App(Window):
         HoverButton(Control, text='识别此面', command=self.get_face).pack(fill=X)
         HoverButton(Control, text='连接esp8266', command=self.connect_device).pack(fill=X)
         if self.controlled:
-            HoverButton(Control, text='暂停任务', click=self.to_controller, params='pause').pack(fill=X)
+            HoverButton(Control, textvariable=self.c_running, command=self.to_controller).pack(fill=X)
+            HoverButton(Control, text='重新开始任务', click=self.to_controller, params='reset').pack(fill=X)
 
         Right = Frame(Top)
         Right.pack(side=RIGHT, fill=Y)
@@ -95,10 +100,22 @@ class App(Window):
         if self.controlled:
             self.message('finish', success)
 
-    def to_controller(self, action):
+    def to_controller(self, arg=None):
         
         if self.message:
-            self.message(action)
+            
+            if arg:
+                self.message(arg)
+                return
+
+            if self.c_mode:
+                self.message('run')
+            else:
+                self.message('pause')
+            
+            self.c_mode = 1 - self.c_mode
+            self.c_running.set(self.c_mode_str[self.c_mode])
+
 
     def update(self):
 

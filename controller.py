@@ -21,7 +21,7 @@ class Controller(Thread):
         gui.message = self.receive
 
         self.tasks = tasks
-        self.paused = False
+        self.paused = True
         self.waiting = False
         self.next_task_id = 0
 
@@ -44,14 +44,24 @@ class Controller(Thread):
     def current_task(self):
         return self.tasks[self.next_task_id - 1]
     
+    def set_task(self, index=0):
+        self.next_task_id = index
+
     def receive(self, action, params=True):
         
         if action == 'finish':
             self.task_end(params)
         
-        if action == 'pause':
+        elif action == 'pause':
             self.gui.console.log('暂停')
             self.paused = True
+        
+        elif action == 'run':
+            self.gui.console.log('开始执行')
+            self.paused = False
+        
+        elif action == 'reset':
+            self.set_task(0)
 
     def get_solution(self):
         # cube = self.gui.cube_str
@@ -150,6 +160,7 @@ class Controller(Thread):
 
         now = self.tasks[self.next_task_id]
         self.next_task_id += 1
+        self.gui.console.log('[%d/%d]' % (self.next_task_id, len(self.tasks)), 'success')
         return now
 
     def run(self):
@@ -180,19 +191,19 @@ cube_robot_tasks = [
     # expand FB
     'send:D3',
     # horizontal rotation →
-    'send:H1',
+    'send:H3',
     # face: recognize colors on face 2
     'face',
     # horizontal rotation →
-    'send:H1',
+    'send:H3',
     # face: recognize colors on face 3
     'face',
     # horizontal rotation →
-    'send:H1',
+    'send:H3',
     # face: recognize colors on face 4
     'face',
     # horizontal rotation →
-    'send:H1',
+    'send:H3',
     # shrink FB, expand LR
     'send:D2',
     # vertical rotation ↑
@@ -204,7 +215,7 @@ cube_robot_tasks = [
     # face: recognize colors on face 6
     'face',
     # vertical rotation ↑
-    'send:V1',
+    'send:V2',
     # shrink LR
     'send:D3',
     # get cube solution
