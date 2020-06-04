@@ -277,23 +277,12 @@ class CubeFloorPlan(Canvas):
         self.facelet_id = [[[0 for col in range(3)]
                             for row in range(3)] for face in range(6)]
         
-        self.color_face = {
-            'yellow': 'U',
-            'green' : 'R',
-            'red'   : 'F',
-            'white' : 'D',
-            'blue'  : 'L',
-            'orange': 'B'
-        }
+        # color: face
+        self.color_face = {}
 
-        self.colors = [
-            ('yellow', 'U'),
-            ('green' , 'R'),
-            ('red'   , 'F'),
-            ('white' , 'D'),
-            ('blue'  , 'L'),
-            ('orange', 'B')
-        ]
+        self.output_order = ['U', 'R', 'F', 'D', 'L', 'B']
+        self.input_order = ['F', 'R', 'B', 'L', 'U', 'D']
+        self.input_id = 0
 
         self.faces = {}
         faces_pos = self.face_position()
@@ -301,36 +290,32 @@ class CubeFloorPlan(Canvas):
 
     # init square_id container and left-top coordinate of every face
     def face_position(self):
-
         ''' 
             initialize six faces
         '''
-
         anchors = {}
         offsets = ((1, 0), (2, 1), (1, 1), (1, 2), (0, 1), (3, 1))
 
-        for i, (color, flag) in enumerate(self.colors):
-            self.faces[color] = [0 for g in range(9)]
+        for i, face in enumerate(self.output_order):
+            self.faces[face] = [0 for g in range(9)]
             x = 3 * offsets[i][0] * self.grid_width + self.padding // 2
             y = 3 * offsets[i][1] * self.grid_width + self.padding // 2
-            anchors[color] = (x, y, flag)
+            anchors[face] = (x, y)
         
         return anchors
 
     # draw 3 x 3 small squares on 6 faces
-    def draw_faces(self, faces_pos):
+    def draw_faces(self, faces_pos:dict):
         
         w = self.grid_width
-        for face in faces_pos:
-            x, y, flag = faces_pos[face]
+        for face, (x, y) in faces_pos.items():
             for grid in range(9):
                 row = grid // 3
                 col = grid % 3
                 self.faces[face][grid] = self.drawSquare(x + col * w, y + row * w)
 
-            # set center color of every face
-            self.itemconfig(self.faces[face][4], fill=face)
-            self.create_text(x + w * 1.5, y + w * 1.5, font=("", 14), text=flag)
+            # set center text of every face
+            self.create_text(x + w * 1.5, y + w * 1.5, font=("", 14), text=face)
 
     # draw grid_width x grid_width square on (x, y)
     def drawSquare(self, x, y):
@@ -340,10 +325,15 @@ class CubeFloorPlan(Canvas):
     # display a face
     def show_face(self, result):
 
-        face = result[4]
-        
+        face = self.input_order[self.input_id]
+
         for i in range(9):
             self.itemconfig(self.faces[face][i], fill=result[i])
+        
+        self.color_face[result[4]] = face
+        
+        self.input_id += 1
+        self.input_id = self.input_id % 6
 
 
     def definition_string(self):
@@ -361,10 +351,9 @@ class CubeFloorPlan(Canvas):
 
             reference: https://pypi.org/project/kociemba/
         '''
-
         s = ''
-        for color, face in self.colors:
-            for grid in self.faces[color]:
+        for face in self.output_order:
+            for grid in self.faces[face]:
                 c = self.itemcget(grid, "fill")
                 s += self.color_face.get(c, '-')
         
@@ -375,13 +364,13 @@ def test():
     from tkinter import Tk
 
     window = Tk()
-    # CubeFloorPlan(window).pack()
+    CubeFloorPlan(window).pack()
     # camera = ViewCanvas(window)
     # camera.pack()
     # camera.openCamera(2)
 
-    canvas = CameraCanvas(window, w=300, h=300)
-    canvas.pack()
+    # canvas = CameraCanvas(window, w=300, h=300)
+    # canvas.pack()
 
     window.mainloop()
 

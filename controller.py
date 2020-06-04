@@ -64,12 +64,13 @@ class Controller(Thread):
             self.set_task(0)
 
     def get_solution(self):
-        # cube = self.gui.cube_str
-        cube = 'LUFRUDDBDLFULRUDBRFLFFFDDRLRUBFDDRDBBBRLLRULBLFUBBUURF'
+        # print(self.gui.cube_str)
+        # cube = 'LUFRUDDBDLFULRUDBRFLFFFDDRLRUBFDDRDBBBRLLRULBLFUBBUURF'
+        cube = self.gui.cube_str
         self.instructions = solve(cube)
         self.task_end()
 
-    def adapt_instruction(self, sequence: str) -> str:
+    def adjust_ins(self, sequence: str) -> str:
         '''
         raw_ins: for example "F2 R3 U2 B2 R3 D2 F2 R1 U2 F1 D3 R3 D2 R1 B3 D3 F2 U3 R3 U2"
         replace actions contains U, D with instructions contains L, F, R, B, H, V, D
@@ -90,9 +91,9 @@ class Controller(Thread):
             face = sequence[index]
             deg = sequence[index + 1]
             if face in 'UD':
-                actions.append('D1')
-                actions.append('V1')
-                actions.append('D3')
+                actions.append(('D', 1))
+                actions.append(('V', 1))
+                actions.append(('D', -1))
 
                 wow = index
                 while wow < len(sequence):
@@ -100,16 +101,111 @@ class Controller(Thread):
                     wow += 3
 
             else:
-                actions.append(face + deg)
+                actions.append((face, -1 if deg == '3' else int(deg)))
                 index += 3
 
+
+        # print(actions)
+        self.avoid_collapse(actions)
+        print(actions)
+        
+        for index in range(len(actions)):
+            face, deg = actions[index]
+            actions[index] = face + ('3' if deg == -1 else str(deg))
+
+        return actions
+    
+    def avoid_collapse(self, actions):
+        
+        '''
+           |
+                    |          |     
+        —— □ ——  —— □ ——  ——   □   ——
+                    |          |     
+           |
+           H        O          V
+        '''
+        r_state_pair = ['H', 'O', 'V']
+        robot_state = 1
+
+        # 1 means |, 0 means ——
+        claw_states = {
+            'F': 1,
+            'R': 1,
+            'B': 1,
+            'L': 1,
+        }
+        claw_neighbors = {
+            'F': 'V',
+            'R': 'H',
+            'B': 'V',
+            'L': 'H'
+        }
+        claw_pair = {
+            'V': ['L', 'R'],
+            'H': ['F', 'B']
+        }
+
+        index = 0
+        
+        while index < len(actions):
+            face, deg = actions[index]
+
+            # 收缩爪子，保持竖直
+            if face == 'D':
+                if not robot_state == 1:
+                    pair = r_state_pair[robot_state]
+                    one, two = claw_pair[pair]
+
+                    if claw_states[one] + claw_states[two] == 0:
+                        claw_states[one] = 1
+                        claw_states[two] = 1
+                        actions[index:index] = [(pair, 1)]
+                        
+                    elif claw_states[one] == 0:
+                        claw_states[one] = 1
+                        actions[index:index] = [(one, 1)]
+
+                    elif claw_states[two] == 0:
+                        claw_states[two] = 1
+                        actions[index:index] = [(two, 1)]
+                    
+                    else:
+                        robot_state -= deg
+                
+                else:
+                    robot_state -= deg
+
+            # 旋转面，碰撞就推开相邻的爪子
+            elif face in claw_states.keys():
+                # 相邻的两个爪子
+                one, two = claw_pair[claw_neighbors[face]]
+                # 有任何一个是横的，就旋转凸轮推开
+                if claw_states[one] + claw_states[two] < 2:
+                    to_state = r_state_pair.index(claw_neighbors[face])
+                    actions[index:index] = [('D', robot_state - to_state), ('D', to_state - robot_state)]
+                    robot_state = to_state
+                
+                else:
+                    # 旋转这个面
+                    claw_states[face] = 1 if deg == 2 else 0
+            
+            # 翻转魔方
+            elif face in claw_pair.keys():
+                one, two = claw_pair[face]
+                claw_states[one] = 1 if deg == 2 else 0
+                claw_states[two] = 1 if deg == 2 else 0
+            
+            # print(actions[index], claw_states, robot_state)
+            index += 1
+        
         return actions
 
     def send_instructions(self):
         '''
         add actions into self.task
         '''
-        actions = self.adapt_instruction(self.instructions)
+        actions = self.adjust_ins(self.instructions)
         for action in actions:
             self.tasks.append('send:%s' % action)
         
@@ -125,7 +221,6 @@ class Controller(Thread):
             B3: rotate face 'B' 90 degrees counterclockwise
             H1: flip the entire cube to the right, which means L -> U, U -> R, R -> B, B -> L.
         '''
-
         res = self.gui.esp_client.send('/action', {
             'face': action[0],
             'deg': 2 if action[1] == '2' else 1,
@@ -182,7 +277,6 @@ class Controller(Thread):
 
         print('exit thread')
 
-
 cube_robot_tasks = [
     # connect esp8266 access point
     'conn',
@@ -216,8 +310,14 @@ cube_robot_tasks = [
     'face',
     # vertical rotation ↑
     'send:V2',
-    # shrink LR
+    # shrink FB
     'send:D3',
+    # expand LR
+    'send:D3',
+    # flip L, R
+    'send:V1',
+    # shrink LR
+    'send:D1',
     # get cube solution
     'solu',
     # solve the cube
