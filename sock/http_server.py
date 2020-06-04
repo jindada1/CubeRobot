@@ -29,10 +29,10 @@ def module_path(html_name='index.html'):
     return h_file
 
 
-def index():
+def static_res(filename):
     html = 'HTTP/1.x 200 ok\r\nContent-Type: text/html\r\n\r\n'
 
-    with open(module_path('emulator.html'), mode='r', encoding='utf8') as text:
+    with open(module_path(filename), mode='r', encoding='utf8') as text:
         html += text.read()
     
     return html.encode('gbk')
@@ -49,8 +49,11 @@ def router(route):
         stop_http_server()
         return text_response('server stopped')
     
+    elif route[:13] == '/axios.min.js':
+        return static_res('axios.min.js')
+
     elif route == '/':
-        return index()
+        return static_res('emulator.html')
 
     return text_response('error')
 
