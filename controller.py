@@ -65,8 +65,8 @@ class Controller(Thread):
 
     def get_solution(self):
         # print(self.gui.cube_str)
-        # cube = 'LUFRUDDBDLFULRUDBRFLFFFDDRLRUBFDDRDBBBRLLRULBLFUBBUURF'
-        cube = self.gui.cube_str
+        cube = 'LUFRUDDBDLFULRUDBRFLFFFDDRLRUBFDDRDBBBRLLRULBLFUBBUURF'
+        # cube = self.gui.cube_str
         self.instructions = solve(cube)
         self.task_end()
 
@@ -221,12 +221,38 @@ class Controller(Thread):
             B3: rotate face 'B' 90 degrees counterclockwise
             H1: flip the entire cube to the right, which means L -> U, U -> R, R -> B, B -> L.
         '''
-        res = self.gui.esp_client.send('/action', {
-            'face': action[0],
-            'deg': 2 if action[1] == '2' else 1,
-            'clockwise': -1 if action[1] == '3' else 1
-        })
+        if action[0] in 'FLBR':
+            self.accurate_rotate(action)
+
+        else:
+            res = self.gui.esp_client.send('/action', {
+                'face': action[0],
+                'deg': 2 if action[1] == '2' else 1,
+                'clockwise': -1 if action[1] == '3' else 1
+            })
+
         self.task_end()
+    
+    def accurate_rotate(self, action):
+
+        face = action[0]
+        deg = 2 if action[1] == '2' else 1
+        clockwise = -1 if action[1] == '3' else 1
+
+        steps = deg * 512
+        deviation = 32
+
+        self.gui.esp_client.send('/config', {
+            'face': face,
+            'steps': steps + deviation,
+            'clockwise': clockwise
+        })
+
+        self.gui.esp_client.send('/config', {
+            'face': face,
+            'steps': deviation,
+            'clockwise': -clockwise
+        })
 
     def go(self):
         self.start()
@@ -318,6 +344,13 @@ cube_robot_tasks = [
     'send:V1',
     # shrink LR
     'send:D1',
+    # get cube solution
+    'solu',
+    # solve the cube
+    'cube'
+]
+
+test_tasks = [
     # get cube solution
     'solu',
     # solve the cube

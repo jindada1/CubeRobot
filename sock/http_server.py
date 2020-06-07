@@ -39,7 +39,7 @@ def static_res(filename):
     
 
 def router(route):
-    
+    # print(route)
     if route[:7] == '/solve/':
         cube = route[7:]
         seq = solve_cube(cube)
@@ -72,6 +72,7 @@ def http_handler(conn):
 
     resp = router(route)
     conn.sendall(resp)
+    conn.close()
 
 
 def start_http_server(handler=http_handler):
@@ -99,7 +100,7 @@ def start_http_server(handler=http_handler):
     while RUNNING:
         try:
             conn, addr = s.accept()
-            print('[Connected] with %s:%d'% (addr[0], addr[1]))
+            # print('[Connected] with %s:%d'% (addr[0], addr[1]))
             Thread(target=handler, args=(conn,)).start()
 
         except:

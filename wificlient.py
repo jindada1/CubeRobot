@@ -42,12 +42,12 @@ class App(Window):
         HoverButton(Left, text='旋转前面',   click=self.rotate, params='F').pack(fill=BOTH, expand=True)
         HoverButton(Left, text='旋转后面',   click=self.rotate, params='B').pack(fill=BOTH, expand=True)
         HoverButton(Left, text='拉伸',   click=self.rotate, params='D').pack(fill=BOTH, expand=True)
-        HoverButton(Left, text='前后翻转',   click=self.rotate, params='H').pack(fill=BOTH, expand=True)
-        HoverButton(Left, text='左右翻转',   click=self.rotate, params='V').pack(fill=BOTH, expand=True)
+        HoverButton(Left, text='左右翻转',   click=self.rotate, params='H').pack(fill=BOTH, expand=True)
+        HoverButton(Left, text='前后翻转',   click=self.rotate, params='V').pack(fill=BOTH, expand=True)
         mySpinBox(Left, range_=(1, 2), var=self.deg_var, editable=True).pack(fill=BOTH, expand=True)
 
 
-        self.console = Console(Top, width=60, height=20)
+        self.console = Console(Top, width=30, height=16)
         self.console.pack(side=LEFT, fill=BOTH, expand=True)
         
         Right = Frame(Top)

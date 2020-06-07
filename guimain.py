@@ -29,7 +29,7 @@ class App(Window):
         self.grids = [Counter() for i in range(9)]
 
         # number of a sample action
-        self.batch = 30
+        self.batch = 15
         self.sample_id = 0
 
         # wifi client instance
