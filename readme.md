@@ -137,8 +137,8 @@ python 版本: 3.x
  
 ### 动图演示
 
-![凹槽凸轮](https://github.com/jindada1/CubeRobo/blob/master/models/screenshots/凹槽凸轮.gif)
+![凹槽凸轮](https://github.com/jindada1/CubeRobot/tree/master/models/screenshots/凹槽凸轮.gif)
 
-![翻转](https://github.com/jindada1/CubeRobo/blob/master/models/screenshots/翻转.gif)
+![翻转](https://github.com/jindada1/CubeRobot/tree/master/models/screenshots/翻转.gif)
 
-![装配](https://github.com/jindada1/CubeRobo/blob/master/models/screenshots/装配.gif)
+![装配](https://github.com/jindada1/CubeRobot/tree/master/models/screenshots/装配.gif)
