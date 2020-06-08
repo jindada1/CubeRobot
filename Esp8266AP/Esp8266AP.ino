@@ -214,6 +214,29 @@ void onAction()
   server.send(200, "text/plain", "/action"); //Response to the HTTP request
 }
 
+void funny()
+{
+  int steps = 1024;
+  while (steps > 0)
+  {
+    Front.step(1);
+    Back.step(-1);
+    if(steps%2) Down.step(1);
+    steps--;
+    delay(3);
+  }
+  steps = 1024;
+  while (steps > 0)
+  {
+    Left.step(1);
+    Right.step(-1);
+    if(steps%2) Down.step(1);
+    steps--;
+    delay(3);
+  }
+  server.send(200, "text/plain", "have a nice day!");
+}
+
 void setup()
 {
   delay(1000);
@@ -238,6 +261,7 @@ void setupRouters()
   server.on("/", onIndex);
   server.on("/config", onConfig);
   server.on("/action", onAction);
+  server.on("/funny", funny);
   server.begin();
   Serial.println("HTTP server started");
 }

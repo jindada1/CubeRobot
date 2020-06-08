@@ -67,7 +67,8 @@ class Controller(Thread):
         # print(self.gui.cube_str)
         cube = 'LUFRUDDBDLFULRUDBRFLFFFDDRLRUBFDDRDBBBRLLRULBLFUBBUURF'
         # cube = self.gui.cube_str
-        self.instructions = solve(cube)
+        # self.instructions = solve(cube)
+        self.instructions = 'D1 L2 U3 R3'
         self.task_end()
 
     def adjust_ins(self, sequence: str) -> str:
@@ -360,7 +361,7 @@ test_tasks = [
 if __name__ == "__main__":
 
     gui = App("Rubik's Cube Robot", True)
-    con = Controller(gui, cube_robot_tasks)
+    con = Controller(gui, test_tasks)
 
     try:
         con.go()

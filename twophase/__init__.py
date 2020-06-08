@@ -13,8 +13,12 @@
         https://github.com/jindada1
 '''
 
+from os import path, mkdir
 
 tables_root = __file__.replace('__init__.py', 'tables')
+
+if not path.exists(tables_root):
+    mkdir(tables_root)
 
 def table_path(f):
 
