@@ -9,6 +9,7 @@
 1. 通过摄像头识别魔方颜色
 2. 将识别结果转化成魔方求解算法的输入
 3. 执行魔方求解算法，得出还原操作序列
+3. 指令优化与碰撞规避处理
 4. 通过wifi将序列发给硬件控制器
 5. 硬件控制器按照序列，控制机械结构执行还原
 6. over
@@ -87,7 +88,13 @@ python 版本: 3.x
 
   - [x] [魔方求解模块](https://github.com/jindada1/CubeRobot/tree/master/twophase)：[twophase](https://github.com/hkociemba/RubiksCube-TwophaseSolver)算法
 
-  - [ ] 指令调整与优化
+  - [x] 指令调整与优化
+    
+    - [x] 机器动作指令集的设计
+    
+    - [x] 标准还原序列到机器动作指令序列的转化
+    
+    - [x] 碰撞规避处理
 
   - [x] [wifi模块](https://github.com/jindada1/CubeRobot/blob/master/sock/esp_client.py)
 
@@ -107,6 +114,31 @@ python 版本: 3.x
 
   - [x] 提供路由处理来自客户端的请求，并返回处理结果
 
-- [ ] 操作序列的解析
+- [x] 操作序列的解析
 
-- [ ] 电机控制逻辑
+- [x] 电机控制逻辑
+
+  - [x] 单个电机动作控制
+
+  - [x] 多个电机同步运行
+
+  - [x] 单个电机角度微调
+
+
+
+### 机械结构建模
+
+- [x] [机械爪](https://github.com/jindada1/CubeRobot/blob/master/models/sldprt/%E6%96%B0%E6%8A%93%E6%89%8B.SLDPRT)
+
+- [x] [凹槽凸轮](https://github.com/jindada1/CubeRobot/blob/master/models/sldprt/%E5%87%B9%E6%A7%BD%E5%87%B8%E8%BD%AE.SLDPRT)
+
+- [x] [整体设计](https://github.com/jindada1/CubeRobot/blob/master/models/sldprt/%E6%9C%BA%E5%99%A8%E4%BA%BA.SLDASM)
+
+ 
+### 动图演示
+
+![凹槽凸轮](https://github.com/jindada1/CubeRobo/blob/master/models/screenshots/凹槽凸轮.gif)
+
+![翻转](https://github.com/jindada1/CubeRobo/blob/master/models/screenshots/翻转.gif)
+
+![装配](https://github.com/jindada1/CubeRobo/blob/master/models/screenshots/装配.gif)
