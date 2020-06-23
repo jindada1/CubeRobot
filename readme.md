@@ -82,7 +82,7 @@ python 版本: 3.x
   - [x] twophase 求解接口的[后台服务器](https://github.com/jindada1/CubeRobot/blob/master/sock/http_server.py)
 
 
-- [ ] 主控程序的开发
+- [x] 主控程序的开发
 
   - [x] [计算机视觉模块](https://github.com/jindada1/CubeRobot/blob/master/vision.py)：魔方定位与颜色块的识别
 
