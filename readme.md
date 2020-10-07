@@ -128,17 +128,16 @@ python 版本: 3.x
 
 ### 机械结构建模
 
-- [x] [机械爪](https://github.com/jindada1/CubeRobot/blob/master/models/sldprt/%E6%96%B0%E6%8A%93%E6%89%8B.SLDPRT)
+模型及装配体如下图所示，所有原文件在[sldprt](/models/sldprt)目录下
 
-- [x] [凹槽凸轮](https://github.com/jindada1/CubeRobot/blob/master/models/sldprt/%E5%87%B9%E6%A7%BD%E5%87%B8%E8%BD%AE.SLDPRT)
+![凹槽凸轮](https://s1.ax1x.com/2020/10/07/0aR97F.png)
 
-- [x] [整体设计](https://github.com/jindada1/CubeRobot/blob/master/models/sldprt/%E6%9C%BA%E5%99%A8%E4%BA%BA.SLDASM)
-
+导出的3D打印模型在[stl](/models/stl)目录下
  
 ### 动图演示
 
-![凹槽凸轮](https://github.com/jindada1/CubeRobot/tree/master/models/screenshots/凹槽凸轮.gif)
+![凹槽凸轮](https://s1.ax1x.com/2020/10/07/0a21yV.gif)
 
-![翻转](https://github.com/jindada1/CubeRobot/tree/master/models/screenshots/翻转.gif)
+![翻转](https://s1.ax1x.com/2020/10/07/0a2Yo4.gif)
 
-![装配](https://github.com/jindada1/CubeRobot/tree/master/models/screenshots/装配.gif)
+![装配](https://s1.ax1x.com/2020/10/07/0a2om8.gif)
