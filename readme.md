@@ -148,8 +148,8 @@ python 版本: 3.x
 
 翻转魔方             |  魔鬼接线       
 :-------------------------:|:-------------------------:
-![](readme/%E7%BF%BB%E8%BD%AC%E9%AD%94%E6%96%B9.png)  |  ![](readme/%E9%AD%94%E9%AC%BC%E6%8E%A5%E7%BA%BF.png)
+![](models/pictures/%E7%BF%BB%E8%BD%AC%E9%AD%94%E6%96%B9.png)  |  ![](models/pictures/%E9%AD%94%E9%AC%BC%E6%8E%A5%E7%BA%BF.png)
 
 识别魔方色块分布             |  旋转魔方面       
 :-------------------------:|:-------------------------:
-![](readme/%E8%AF%86%E5%88%AB%E9%AD%94%E6%96%B9%E8%89%B2%E5%9D%97%E5%88%86%E5%B8%83.png)  |  ![](readme/%E6%97%8B%E8%BD%AC%E9%AD%94%E6%96%B9%E9%9D%A2.png)
+![](models/pictures/%E8%AF%86%E5%88%AB%E9%AD%94%E6%96%B9%E8%89%B2%E5%9D%97%E5%88%86%E5%B8%83.png)  |  ![](models/pictures/%E6%97%8B%E8%BD%AC%E9%AD%94%E6%96%B9%E9%9D%A2.png)
