@@ -16,7 +16,7 @@
 
 
 
-## requirements
+## 依赖
 
 python 版本: 3.x
 
@@ -25,6 +25,11 @@ python 版本: 3.x
 + pillow
 + numpy
 + opencv-python 
+
+```bash
+$ pip install -r requirements.txt
+$ python3 guiconfig.py
+```
 
 
 
@@ -66,28 +71,22 @@ python 版本: 3.x
   
     - [x] 颜色识别
 
-  ```
-  pip install -r requirements.txt
-  python3 guiconfig.py
-  ```
-
+  ![config_gui](readme.assets/config_gui.png)
+  
 - [x] [魔方模拟器](https://github.com/jindada1/CubeRobot/blob/master/sock/emulator.html)的开发
 
   - [x] 虚拟魔方的实现
-
-  - [x] 执行还原序列
-
+- [x] 执行还原序列
   - [x] 获取魔方状态
-
-  - [x] twophase 求解接口的[后台服务器](https://github.com/jindada1/CubeRobot/blob/master/sock/http_server.py)
+- [x] twophase 求解接口的[后台服务器](https://github.com/jindada1/CubeRobot/blob/master/sock/http_server.py)
+  
+![web_gui](readme.assets/web_gui.png)
 
 
 - [x] 主控程序的开发
 
   - [x] [计算机视觉模块](https://github.com/jindada1/CubeRobot/blob/master/vision.py)：魔方定位与颜色块的识别
-
   - [x] [魔方求解模块](https://github.com/jindada1/CubeRobot/tree/master/twophase)：[twophase](https://github.com/hkociemba/RubiksCube-TwophaseSolver)算法
-
   - [x] 指令调整与优化
     
     - [x] 机器动作指令集的设计
@@ -95,16 +94,21 @@ python 版本: 3.x
     - [x] 标准还原序列到机器动作指令序列的转化
     
     - [x] 碰撞规避处理
-
   - [x] [wifi模块](https://github.com/jindada1/CubeRobot/blob/master/sock/esp_client.py)
-
+  
     - [x] wifi检测与连接
-
     - [x] 自动获取 esp8266 模块在 ap 模式下的 ip 地址
-    
     - [x] 发送数据和接收数据
-
-
+  
+  软件架构如下：
+  
+  ![structure](readme.assets/structure.png)
+  
+  界面如下：
+  
+  ![robot_gui](readme.assets/robot_gui.png)
+  
+  
 
 ### 硬件部分
 
@@ -124,7 +128,9 @@ python 版本: 3.x
 
   - [x] 单个电机角度微调
 
+单个电机的基本连接如下：
 
+![connect](readme.assets/connect.png)
 
 ## 机械结构建模
 
